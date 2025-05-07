@@ -1,7 +1,7 @@
 
 package accountmanagement.data;
 
-
+// Inheritance derived from User class
 public class Admin extends User{
     private String Department;
     private String Location; 

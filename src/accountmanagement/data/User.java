@@ -1,16 +1,40 @@
-
 package accountmanagement.data;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
+
+// Inheritance base class 
 public class User {
-    private  String FullName;
+
+    private String FullName;
     private String Email;
     private String Password;
 
     public User(String FullName, String Email, String Password) {
         this.FullName = FullName;
         this.Email = Email;
-        this.Password = Password;
+        this.Password = simpleHash(Password);
+    }
+
+    public String simpleHash(String plainPassword) {
+
+        String hashedPassword = plainPassword.chars()
+                .map(c -> (c + 100) % 62) // 62, a-z (26) + A-Z (26) + 0-9 (10)
+                .mapToObj(i -> {
+                    if (i < 26) {
+                        return String.valueOf((char) ('a' + i)); // 'a' to 'z'
+                    }
+                    if (i < 52) {
+                        return String.valueOf((char) ('A' + (i - 26))); // 'A' to 'Z'
+                    }
+                    return String.valueOf((char) ('0' + (i - 52))); // '0' to '9'
+                })
+                .collect(Collectors.joining());
+        
+        return hashedPassword;
+
     }
 
     public String getFullName() {

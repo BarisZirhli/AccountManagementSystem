@@ -3,19 +3,25 @@ package accountmanagement;
 import accountmanagement.data.User;
 import accountmanagement.data.Admin;
 import accountmanagement.data.Customer;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Date;
 import javax.swing.JOptionPane;
 import java.sql.PreparedStatement;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AdminScreen extends javax.swing.JFrame {
-    
+
     public AdminScreen() {
         initComponents();
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -231,19 +237,23 @@ public class AdminScreen extends javax.swing.JFrame {
 
     // adding user
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        
+
         String fullName = jTextField1.getText();
         String email = jTextField2.getText();
         String address = jTextField3.getText();
         String password = jTextField4.getText();
-        
+
         Date today = new Date();
-        
+
         Customer cust = new Customer(today, address, fullName, email, password);
-        addUserToDatabase(cust);
+        try {
+            addUserToDatabase(cust);
+        } catch (IOException ex) {
+            Logger.getLogger(AdminScreen.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
     }//GEN-LAST:event_jButton2ActionPerformed
-    
+
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
@@ -252,49 +262,47 @@ public class AdminScreen extends javax.swing.JFrame {
     private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField3ActionPerformed
-    
-    public void addUserToDatabase(Customer customer) {
-        
-        String url = "jdbc:postgresql://localhost:5432/AccountingDb";
-        String DBusername = "postgres";        
-        String DBpassword = "mitaka";
-        
-        String query = "INSERT INTO  (full_name, email, address, password, role) VALUES (?, ?, ?, ?, ?)";
+
+    public void addUserToDatabase(Customer customer) throws FileNotFoundException, IOException {
+
+        Properties properties = new Properties();
+        String currentDirectory = System.getProperty("user.dir");
+        System.out.println(currentDirectory);
+        FileInputStream input = new FileInputStream(currentDirectory + "\\src\\accountmanagement\\config.properties");
+        properties.load(input);
+        String url = properties.getProperty("db.url");
+        String DBusername = properties.getProperty("db.username");
+        String DBpassword = properties.getProperty(("db.password"));
+
+        String query = "INSERT INTO users (user_id, email, password_hash, role, address, full_name, enroll_date) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword); PreparedStatement pstmt = conn.prepareStatement(query)) {
-            
-            Date today = new Date();
-            pstmt.setString(1, today.toString());
-            pstmt.setString(2, customer.getAddress());
-            pstmt.setString(3, customer.getFullName());
-            pstmt.setString(4, customer.getEmail());
-            pstmt.setString(5, customer.getPassword());
-            
+
+            pstmt.setString(1, customer.getEmail());
+            pstmt.setString(2, customer.getPassword());
+            pstmt.setString(3, "USER");
+            pstmt.setString(4, customer.getAddress());
+            pstmt.setString(5, customer.getFullName());
+
+           
+            java.sql.Date sqlDate = new java.sql.Date(customer.getOpenAccount().getTime());
+            pstmt.setDate(6, sqlDate);
+
             int result = pstmt.executeUpdate();
             if (result > 0) {
                 JOptionPane.showMessageDialog(this, "Kullanıcı başarıyla kaydedildi!");
             } else {
                 JOptionPane.showMessageDialog(this, "Bir hata oluştu.");
             }
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Veritabanı hatası: " + e.getMessage());
         }
-        
     }
-    
+
     public static void main(String args[]) {
-        
-        String url = "jdbc:postgresql://localhost:5432/AccountingDb";
-        String user = "mitaka";
-        String password = "mitaka";
-        
-        try (Connection conn = DriverManager.getConnection(url, user, password)) {
-            System.out.println("Bağlantı başarılı!");
-        } catch (SQLException e) {
-            System.out.println("Hata: " + e.getMessage());
-        }
-        
+
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {

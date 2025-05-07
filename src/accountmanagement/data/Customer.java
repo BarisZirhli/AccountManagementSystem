@@ -2,6 +2,8 @@ package accountmanagement.data;
 
 import java.util.Date;
 
+
+//Interitance derived class
 public class Customer extends User {
 
     private Date OpenAccount;
