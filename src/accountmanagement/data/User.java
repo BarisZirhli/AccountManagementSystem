@@ -18,6 +18,10 @@ public class User {
         this.Password = simpleHash(Password);
     }
 
+    public User(String Email) {
+        this.Email = Email;
+    }
+
     public String simpleHash(String plainPassword) {
 
         String hashedPassword = plainPassword.chars()

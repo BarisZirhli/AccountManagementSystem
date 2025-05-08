@@ -243,9 +243,9 @@ public class AdminScreen extends javax.swing.JFrame {
     // adding user
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
-        String fullName = jTextField1.getText();
-        String email = jTextField2.getText();
-        String address = jTextField3.getText();
+        String fullName =jTextField3.getText();
+        String email = jTextField1.getText(); 
+        String address = jTextField2.getText(); 
         String password = jTextField4.getText();
 
         Date today = new Date();

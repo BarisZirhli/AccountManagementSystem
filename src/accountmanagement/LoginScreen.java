@@ -1,6 +1,7 @@
 package accountmanagement;
 
 import accountmanagement.data.Session;
+import accountmanagement.data.User;
 import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -144,20 +145,22 @@ public class LoginScreen extends javax.swing.JFrame {
             if (result.next()) {
                 role = result.getString("role");
                 if ("ADMIN".equals(role)) {
-                  
+
                     JOptionPane.showMessageDialog(null, "Successfull! directing Admin Screen");
                     this.dispose();
                     AdminScreen as = new AdminScreen();
                     as.setVisible(true);
-                    
+
                 } else if ("USER".equals(role)) {
-                    Session.CurrentUser.setEmail(email);
+                    System.out.println(email);
+                    User u = new User(email);
+                    Session.CurrentUser = u;
+
                     JOptionPane.showMessageDialog(null, "Succcesfull! Dashboard Loading.");
-                   this.dispose();
-                   Dashboard db = new Dashboard();
-                   db.setVisible(true);
-                           
-                           
+                    this.dispose();
+                    Dashboard db = new Dashboard();
+                    db.setVisible(true);
+
                 }
             } else {
                 System.out.println("Kullanıcı bulunamadı.");
