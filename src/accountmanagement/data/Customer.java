@@ -31,9 +31,5 @@ public class Customer extends User {
         this.OpenAccount = OpenAccount;
     }
 
-    public Customer(Date OpenAccount) {
-        super("test", "test", "test");
-        this.OpenAccount = OpenAccount;
-
-    }
+  
 }

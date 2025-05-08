@@ -18,6 +18,9 @@ public class User {
         this.Password = simpleHash(Password);
     }
 
+    public User() {
+    }
+
     public User(String Email) {
         this.Email = Email;
     }

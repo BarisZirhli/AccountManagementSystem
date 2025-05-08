@@ -16,6 +16,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.util.Properties;
 import java.sql.ResultSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -97,8 +99,13 @@ public class Dashboard extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jTextArea1);
 
         jButton1.setText("Save");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Income", "Expense" }));
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "income", "expense" }));
         jComboBox2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBox2ActionPerformed(evt);
@@ -220,6 +227,28 @@ public class Dashboard extends javax.swing.JFrame {
     private void jComboBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox3ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jComboBox3ActionPerformed
+    // save   Date date = (Date) jDateChooser1.getDate();
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        java.util.Date utilDate = jDateChooser1.getDate();
+
+        // Convert it to java.sql.Date for database operations
+        java.sql.Date sqlDate = null;
+        if (utilDate != null) {
+            sqlDate = new java.sql.Date(utilDate.getTime());
+        }
+        
+        String type = (String)jComboBox1.getSelectedItem();
+        String category = (String)jComboBox2.getSelectedItem();
+        double amount = Double.parseDouble(jTextField2.getText());
+        String currency = (String)jComboBox3.getSelectedItem();
+        
+        
+        try {
+            addTransactionToDatabase(sqlDate, type, category, amount, currency);
+        } catch (IOException ex) {
+            Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -306,7 +335,7 @@ public class Dashboard extends javax.swing.JFrame {
 }
     public void addTransactionToDatabase(Date date,String type,String category,double amount,String currency) throws IOException{
         int userId = getUserIdFromEmail(Session.CurrentUser.getEmail());
-
+        System.out.println(userId);
         try{
         Properties properties = new Properties();
         String currentDirectory = System.getProperty("user.dir");
@@ -316,15 +345,16 @@ public class Dashboard extends javax.swing.JFrame {
         String url = properties.getProperty("db.url");
         String DBusername = properties.getProperty("db.username");
         String DBpassword = properties.getProperty(("db.password"));
-        String query = "INSERT INTO users (transaction_id, date, type, category, amount, currency, user_id) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword); PreparedStatement pstmt = conn.prepareStatement(query)) {
+        String query = "INSERT INTO transactions (transaction_id, date, type, category, amount, currency, user_id) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword); 
+        PreparedStatement pstmt = conn.prepareStatement(query)) {
         java.sql.Date sqlDate = new java.sql.Date(date.getTime());
         pstmt.setDate(1, sqlDate);
         pstmt.setString(2, type);
         pstmt.setString(3, category);
-        pstmt.setString(4, String.valueOf(amount));
+        pstmt.setDouble(4, amount);
         pstmt.setString(5, currency);
-        pstmt.setString(6,String.valueOf(userId));
+        pstmt.setInt(6, userId);
             
             int result = pstmt.executeUpdate();
             if (result > 0) {

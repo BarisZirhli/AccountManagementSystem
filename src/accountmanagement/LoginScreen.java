@@ -137,8 +137,11 @@ public class LoginScreen extends javax.swing.JFrame {
             Connection conn = DriverManager.getConnection(url, DBusername, DBpassword);
             String query = "SELECT role FROM users WHERE email = ? AND password_hash = ?";
             PreparedStatement pstmt = conn.prepareStatement(query);
+            User uhash = new User();
+            String hashpass=uhash.simpleHash(password);
+            System.out.println(hashpass);
             pstmt.setString(1, email);
-            pstmt.setString(2, password);
+            pstmt.setString(2,password );
 
             ResultSet result = pstmt.executeQuery();
 
