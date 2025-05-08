@@ -142,6 +142,11 @@ public class AdminScreen extends javax.swing.JFrame {
 
         jButton1.setBackground(new java.awt.Color(153, 153, 153));
         jButton1.setText("DELETE USER");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jButton2.setBackground(new java.awt.Color(153, 153, 153));
         jButton2.setText("ADD USER");
@@ -263,6 +268,11 @@ public class AdminScreen extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField3ActionPerformed
 
+    // delete
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     public void addUserToDatabase(Customer customer) throws FileNotFoundException, IOException {
 
         Properties properties = new Properties();
@@ -284,7 +294,6 @@ public class AdminScreen extends javax.swing.JFrame {
             pstmt.setString(4, customer.getAddress());
             pstmt.setString(5, customer.getFullName());
 
-           
             java.sql.Date sqlDate = new java.sql.Date(customer.getOpenAccount().getTime());
             pstmt.setDate(6, sqlDate);
 
@@ -299,6 +308,34 @@ public class AdminScreen extends javax.swing.JFrame {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Veritabanı hatası: " + e.getMessage());
         }
+    }
+
+    public void deleteUserToDatabase(String fullName) {
+        
+        try {
+            Properties properties = new Properties();
+            String currentDirectory = System.getProperty("user.dir");
+            System.out.println(currentDirectory);
+            FileInputStream input = new FileInputStream(currentDirectory + "\\src\\accountmanagement\\config.properties");
+            properties.load(input);
+            String url = properties.getProperty("db.url");
+            String DBusername = properties.getProperty("db.username");
+            String DBpassword = properties.getProperty(("db.password"));
+            Connection conn = DriverManager.getConnection(url, DBusername, DBpassword);
+            String query = "DELETE FROM user WHERE = ?";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setString(1, fullName);
+
+            int rowsAffected = pstmt.executeUpdate();
+            System.out.println("Silinen satır sayısı: " + rowsAffected);
+
+            pstmt.close();
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static void main(String args[]) {
