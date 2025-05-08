@@ -1,5 +1,6 @@
 package accountmanagement;
 
+import accountmanagement.data.Session;
 import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -45,7 +46,7 @@ public class LoginScreen extends javax.swing.JFrame {
         jLabel1.setText("Account Management System");
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel2.setText("Username");
+        jLabel2.setText("Email");
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel3.setText("Password");
@@ -115,10 +116,13 @@ public class LoginScreen extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+
+        String email = jTextField1.getText();
+        String password = new String(jPasswordField1.getPassword());
+        Login(email, password);
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    public void Login(String username, String password) {
+    public void Login(String email, String password) {
         try {
             String role = null;
             Properties properties = new Properties();
@@ -130,9 +134,9 @@ public class LoginScreen extends javax.swing.JFrame {
             String DBpassword = properties.getProperty("db.password");
 
             Connection conn = DriverManager.getConnection(url, DBusername, DBpassword);
-            String query = "SELECT role FROM user WHERE username = ? AND password = ?";
+            String query = "SELECT role FROM users WHERE email = ? AND password_hash = ?";
             PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setString(1, username);
+            pstmt.setString(1, email);
             pstmt.setString(2, password);
 
             ResultSet result = pstmt.executeQuery();
@@ -147,6 +151,7 @@ public class LoginScreen extends javax.swing.JFrame {
                     as.setVisible(true);
                     
                 } else if ("USER".equals(role)) {
+                    Session.CurrentUser.setEmail(email);
                     JOptionPane.showMessageDialog(null, "Succcesfull! Dashboard Loading.");
                    this.dispose();
                    Dashboard db = new Dashboard();
@@ -163,6 +168,7 @@ public class LoginScreen extends javax.swing.JFrame {
             conn.close();
         } catch (Exception e) {
             e.printStackTrace();
+            System.err.println("Hata buradan geldi");
         }
     }
 

@@ -4,6 +4,20 @@
  */
 package accountmanagement;
 
+import accountmanagement.data.Session;
+import java.io.FileInputStream;
+import java.util.Properties;
+import java.sql.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.util.Properties;
+import java.sql.ResultSet;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author EXCALIBUR
@@ -17,6 +31,8 @@ public class Dashboard extends javax.swing.JFrame {
         initComponents();
     }
 
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -239,6 +255,8 @@ public class Dashboard extends javax.swing.JFrame {
             }
         });
     }
+    
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
@@ -258,4 +276,66 @@ public class Dashboard extends javax.swing.JFrame {
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField2;
     // End of variables declaration//GEN-END:variables
+    public int getUserIdFromEmail(String email) throws FileNotFoundException, IOException{
+        int userId = -1;
+        try{
+        Properties properties = new Properties();
+        String currentDirectory = System.getProperty("user.dir");
+        System.out.println(currentDirectory);
+        FileInputStream input = new FileInputStream(currentDirectory + "\\src\\accountmanagement\\config.properties");
+        properties.load(input);
+        String url = properties.getProperty("db.url");
+        String DBusername = properties.getProperty("db.username");
+        String DBpassword = properties.getProperty(("db.password"));
+        String query = "SELECT user_id FROM users WHERE email = ?";
+        
+    try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword);
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setString(1, email);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                userId = rs.getInt("user_id");
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return userId;
 }
+    public void addTransactionToDatabase(Date date,String type,String category,double amount,String currency) throws IOException{
+        int userId = getUserIdFromEmail(Session.CurrentUser.getEmail());
+
+        try{
+        Properties properties = new Properties();
+        String currentDirectory = System.getProperty("user.dir");
+        System.out.println(currentDirectory);
+        FileInputStream input = new FileInputStream(currentDirectory + "\\src\\accountmanagement\\config.properties");
+        properties.load(input);
+        String url = properties.getProperty("db.url");
+        String DBusername = properties.getProperty("db.username");
+        String DBpassword = properties.getProperty(("db.password"));
+        String query = "INSERT INTO users (transaction_id, date, type, category, amount, currency, user_id) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword); PreparedStatement pstmt = conn.prepareStatement(query)) {
+        java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+        pstmt.setDate(1, sqlDate);
+        pstmt.setString(2, type);
+        pstmt.setString(3, category);
+        pstmt.setString(4, String.valueOf(amount));
+        pstmt.setString(5, currency);
+        pstmt.setString(6,String.valueOf(userId));
+            
+            int result = pstmt.executeUpdate();
+            if (result > 0) {
+                JOptionPane.showMessageDialog(this, "Kullanıcı başarıyla bir işlemi gerçekleştirdi!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Bir hata oluştu.");
+            }
+        }
+        }        
+        catch(Exception ex){
+            ex.printStackTrace();
+        }
+
+    }}

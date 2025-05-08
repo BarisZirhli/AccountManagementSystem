@@ -3,7 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/pc/Documents/NetBeansProjects/AccountManagement/src/accountmanagement/AdminScreen.java</file>
+            <file>file:/C:/Users/EXCALIBUR/Desktop/projects/Java%20Spring/AccountManagementSystem/src/accountmanagement/AdminScreen.java</file>
+            <file>file:/C:/Users/EXCALIBUR/Desktop/projects/Java%20Spring/AccountManagementSystem/src/accountmanagement/data/Admin.java</file>
+            <file>file:/C:/Users/EXCALIBUR/Desktop/projects/Java%20Spring/AccountManagementSystem/src/accountmanagement/config.properties</file>
+            <file>file:/C:/Users/EXCALIBUR/Desktop/projects/Java%20Spring/AccountManagementSystem/src/accountmanagement/data/Customer.java</file>
+            <file>file:/C:/Users/EXCALIBUR/Desktop/projects/Java%20Spring/AccountManagementSystem/src/accountmanagement/data/Session.java</file>
+            <file>file:/C:/Users/EXCALIBUR/Desktop/projects/Java%20Spring/AccountManagementSystem/src/accountmanagement/LoginScreen.java</file>
+            <file>file:/C:/Users/EXCALIBUR/Desktop/projects/Java%20Spring/AccountManagementSystem/src/accountmanagement/Dashboard.java</file>
+            <file>file:/C:/Users/EXCALIBUR/Desktop/projects/Java%20Spring/AccountManagementSystem/src/accountmanagement/data/User.java</file>
         </group>
     </open-files>
 </project-private>
