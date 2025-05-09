@@ -124,6 +124,17 @@ public class LoginScreen extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     public void Login(String email, String password) {
+        String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+        String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$";
+        if (!email.matches(emailRegex)) {
+        JOptionPane.showMessageDialog(null, "Geçerli bir e-posta adresi giriniz!");
+        return;
+    }
+
+    if (!password.matches(passwordRegex)) {
+        JOptionPane.showMessageDialog(null, "Şifre en az 6 karakter olmalı ve harf ile rakam içermelidir!");
+        return;
+    }
         try {
             String role = null;
             Properties properties = new Properties();
@@ -141,7 +152,7 @@ public class LoginScreen extends javax.swing.JFrame {
             String hashpass=uhash.simpleHash(password);
             System.out.println(hashpass);
             pstmt.setString(1, email);
-            pstmt.setString(2,password );
+            pstmt.setString(2, password);
 
             ResultSet result = pstmt.executeQuery();
 
