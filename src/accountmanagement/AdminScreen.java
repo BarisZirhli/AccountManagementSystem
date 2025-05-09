@@ -267,7 +267,7 @@ public class AdminScreen extends javax.swing.JFrame {
         Properties properties = new Properties();
         String currentDirectory = System.getProperty("user.dir");
         System.out.println(currentDirectory);
-        FileInputStream input = new FileInputStream(currentDirectory + "\\src\\accountmanagement\\config.properties");
+        FileInputStream input = new FileInputStream(currentDirectory + "\\config.properties");
         properties.load(input);
         String url = properties.getProperty("db.url");
         String DBusername = properties.getProperty("db.username");

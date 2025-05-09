@@ -3,6 +3,7 @@ package accountmanagement;
 import accountmanagement.data.Session;
 import accountmanagement.data.User;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -127,19 +128,21 @@ public class LoginScreen extends javax.swing.JFrame {
         String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
         String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$";
         if (!email.matches(emailRegex)) {
-        JOptionPane.showMessageDialog(null, "Geçerli bir e-posta adresi giriniz!");
-        return;
-    }
+            JOptionPane.showMessageDialog(null, "Geçerli bir e-posta adresi giriniz!");
+            return;
+        }
 
-    if (!password.matches(passwordRegex)) {
-        JOptionPane.showMessageDialog(null, "Şifre en az 6 karakter olmalı ve harf ile rakam içermelidir!");
-        return;
-    }
+        if (!password.matches(passwordRegex)) {
+            JOptionPane.showMessageDialog(null, "Şifre en az 6 karakter olmalı ve harf ile rakam içermelidir!");
+            return;
+        }
         try {
             String role = null;
             Properties properties = new Properties();
             String currentDirectory = System.getProperty("user.dir");
-            FileInputStream input = new FileInputStream(currentDirectory + "\\src\\accountmanagement\\config.properties");
+            //System.out.println(currentDirectory + "\\config.properties");
+            FileInputStream input = new FileInputStream(currentDirectory + "\\config.properties");
+
             properties.load(input);
             String url = properties.getProperty("db.url");
             String DBusername = properties.getProperty("db.username");
@@ -149,8 +152,8 @@ public class LoginScreen extends javax.swing.JFrame {
             String query = "SELECT role FROM users WHERE email = ? AND password_hash = ?";
             PreparedStatement pstmt = conn.prepareStatement(query);
             User uhash = new User();
-            String hashpass=uhash.simpleHash(password);
-            System.out.println(hashpass);
+            String hashpass = uhash.simpleHash(password);
+
             pstmt.setString(1, email);
             pstmt.setString(2, password);
 
