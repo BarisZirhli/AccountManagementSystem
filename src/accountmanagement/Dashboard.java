@@ -26,15 +26,38 @@ import javax.swing.JOptionPane;
  */
 public class Dashboard extends javax.swing.JFrame {
 
-    /**
-     * Creates new form Dashboard
-     */
-    public Dashboard() {
-        initComponents();
+    public String getfullNameFromEmail(String email) throws FileNotFoundException, IOException {
+        String fullName = "";
+        try {
+            Properties properties = new Properties();
+            String currentDirectory = System.getProperty("user.dir");
+            System.out.println(currentDirectory);
+            FileInputStream input = new FileInputStream(currentDirectory + "\\src\\accountmanagement\\config.properties");
+            properties.load(input);
+            String url = properties.getProperty("db.url");
+            String DBusername = properties.getProperty("db.username");
+            String DBpassword = properties.getProperty(("db.password"));
+            String query = "SELECT full_name FROM users WHERE email = ?";
+
+            try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword); PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+                pstmt.setString(1, email);
+                ResultSet rs = pstmt.executeQuery();
+
+                if (rs.next()) {
+                    fullName = rs.getString("full_name");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return fullName;
     }
 
-    
-    
+    public Dashboard() throws IOException {
+        initComponents();
+        jLabel2.setText(getfullNameFromEmail(Session.CurrentUser.getEmail()));
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -280,7 +303,11 @@ public class Dashboard extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Dashboard().setVisible(true);
+                try {
+                    new Dashboard().setVisible(true);
+                } catch (IOException ex) {
+                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
