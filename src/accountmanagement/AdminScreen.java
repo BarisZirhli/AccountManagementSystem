@@ -259,7 +259,18 @@ public class AdminScreen extends javax.swing.JFrame {
 
     // delete
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+       String getuserFromId = JOptionPane.showInputDialog(this, "Silmek istediğiniz user'in idsini girin!");
+       if(getuserFromId == null || getuserFromId.trim().isEmpty()){
+       JOptionPane.showMessageDialog(this, "İşlem iptal edildi veya geçersiz id girişi!");
+       return;
+       }
+       try{
+        int userId = Integer.parseInt(getuserFromId);
+           deleteUserToDatabase(userId);
+       }catch(Exception e){
+           JOptionPane.showMessageDialog(this, "Hata oluştu" + e.getMessage());
+       }
+       
     }//GEN-LAST:event_jButton1ActionPerformed
 
     public void addUserToDatabase(Customer customer) throws FileNotFoundException, IOException {
@@ -267,7 +278,7 @@ public class AdminScreen extends javax.swing.JFrame {
         Properties properties = new Properties();
         String currentDirectory = System.getProperty("user.dir");
         System.out.println(currentDirectory);
-        FileInputStream input = new FileInputStream(currentDirectory + "\\config.properties");
+        FileInputStream input = new FileInputStream(currentDirectory + "\\src\\accountmanagement\\config.properties");
         properties.load(input);
         String url = properties.getProperty("db.url");
         String DBusername = properties.getProperty("db.username");
@@ -299,7 +310,7 @@ public class AdminScreen extends javax.swing.JFrame {
         }
     }
 
-    public void deleteUserToDatabase(String fullName) {
+    public void deleteUserToDatabase(int userId) {
         
         try {
             Properties properties = new Properties();
@@ -309,15 +320,19 @@ public class AdminScreen extends javax.swing.JFrame {
             properties.load(input);
             String url = properties.getProperty("db.url");
             String DBusername = properties.getProperty("db.username");
-            String DBpassword = properties.getProperty(("db.password"));
+            String DBpassword = properties.getProperty(("db.password")); 
             Connection conn = DriverManager.getConnection(url, DBusername, DBpassword);
-            String query = "DELETE FROM user WHERE = ?";
+            String query = "DELETE FROM users WHERE user_id = ?";
             PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setString(1, fullName);
+            pstmt.setInt(1, userId);
 
             int rowsAffected = pstmt.executeUpdate();
-            System.out.println("Silinen satır sayısı: " + rowsAffected);
-
+            if(rowsAffected > 0){
+            JOptionPane.showMessageDialog(this, "ID'si " + userId + " olan kullanıcı başarıyla silindi!");
+            }
+            else{
+                  JOptionPane.showMessageDialog(this, "Kullanıcı bulunamadı!");
+            }
             pstmt.close();
             conn.close();
 
@@ -326,7 +341,7 @@ public class AdminScreen extends javax.swing.JFrame {
         }
 
     }
-
+        
     public static void main(String args[]) {
 
         try {
