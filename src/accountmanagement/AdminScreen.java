@@ -164,6 +164,11 @@ public class AdminScreen extends javax.swing.JFrame {
         jButton4.setBackground(new java.awt.Color(153, 153, 153));
         jButton4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jButton4.setText("UPDATE USER");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         jDesktopPane1.setLayer(jButton1, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jDesktopPane1.setLayer(jButton2, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -273,6 +278,35 @@ public class AdminScreen extends javax.swing.JFrame {
        
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+
+         String userIdStr = JOptionPane.showInputDialog(this, "Güncellemek istediğiniz kullanıcının ID'sini girin:");
+    
+    if(userIdStr == null || userIdStr.trim().isEmpty()) {
+        JOptionPane.showMessageDialog(this, "İşlem iptal edildi veya geçersiz ID girişi!");
+        return;
+    }
+    
+    try {
+        int userId = Integer.parseInt(userIdStr);
+        
+        // Mevcut kullanıcı bilgilerini al
+        String fullName = jTextField3.getText();
+        String email = jTextField1.getText();
+        String address = jTextField2.getText();
+        String password = jTextField4.getText();
+        
+        // Güncelleme işlemini yap
+        updateUserInDatabase(userId, fullName, email, address, password);
+        
+    } catch(NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Geçerli bir sayı giriniz!");
+    } catch(Exception e) {
+        JOptionPane.showMessageDialog(this, "Hata oluştu: " + e.getMessage());
+    }
+
+    }//GEN-LAST:event_jButton4ActionPerformed
+
     public void addUserToDatabase(Customer customer) throws FileNotFoundException, IOException {
 
         Properties properties = new Properties();
@@ -341,7 +375,42 @@ public class AdminScreen extends javax.swing.JFrame {
         }
 
     }
+    
+    public void updateUserInDatabase(int userId, String fullName, String email, String address, String password) {
+    try {
+        Properties properties = new Properties();
+        String currentDirectory = System.getProperty("user.dir");
+        FileInputStream input = new FileInputStream(currentDirectory + "\\src\\accountmanagement\\config.properties");
+        properties.load(input);
+        String url = properties.getProperty("db.url");
+        String DBusername = properties.getProperty("db.username");
+        String DBpassword = properties.getProperty("db.password");
         
+        String query = "UPDATE users SET full_name = ?, email = ?, address = ?, password_hash = ? WHERE user_id = ?";
+        
+        try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword);
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            
+            pstmt.setString(1, fullName);
+            pstmt.setString(2, email);
+            pstmt.setString(3, address);
+            pstmt.setString(4, password);
+            pstmt.setInt(5, userId);
+            
+            int rowsAffected = pstmt.executeUpdate();
+            if(rowsAffected > 0) {
+                JOptionPane.showMessageDialog(this, "ID'si " + userId + " olan kullanıcı başarıyla güncellendi!");
+            } else {
+                JOptionPane.showMessageDialog(this, "ID'si " + userId + " olan kullanıcı bulunamadı!");
+            }
+        }
+    } catch(Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Veritabanı hatası: " + e.getMessage());
+    }
+}
+    
+    
     public static void main(String args[]) {
 
         try {
