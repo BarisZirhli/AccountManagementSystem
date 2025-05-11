@@ -4,10 +4,26 @@
  */
 package accountmanagement;
 
+import java.io.FileInputStream;
+import java.util.Date;
 import javax.accessibility.Accessible;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.util.Properties;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -124,37 +140,67 @@ public class ExportScreen extends javax.swing.JFrame {
 
     // export file button
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Save Report File");
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                "Text Files", "txt");
-
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files", "txt");
         chooser.setFileFilter(filter);
+
         int returnVal = chooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
-              
                 String filePath = chooser.getSelectedFile().getAbsolutePath();
                 if (!filePath.toLowerCase().endsWith(".txt")) {
                     filePath += ".txt";
                 }
 
-               
-                String reportContent = "Monthly Report\n"
-                        + "Start Date: " + jDateChooser1.getDate() + "\n"
-                        + "End Date: " + jDateChooser4.getDate() + "\n"
-                        + "Data goes here...";
+                Properties properties = new Properties();
+                String currentDirectory = System.getProperty("user.dir");
+                FileInputStream input = new FileInputStream(currentDirectory + "\\src\\accountmanagement\\config.properties");
+                properties.load(input);
 
-              
-                java.nio.file.Files.write(java.nio.file.Paths.get(filePath), reportContent.getBytes());
+                String url = properties.getProperty("db.url");
+                String DBusername = properties.getProperty("db.username");
+                String DBpassword = properties.getProperty("db.password");
 
-                javax.swing.JOptionPane.showMessageDialog(this, "Report exported successfully.");
-            } catch (Exception ex) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Error exporting file: " + ex.getMessage());
+                Date startDate = jDateChooser1.getDate();
+                Date endDate = jDateChooser4.getDate();
+
+                String query = "SELECT category, amount FROM transactions WHERE date BETWEEN ? AND ?";
+
+                try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword); PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+                    pstmt.setDate(1, new java.sql.Date(startDate.getTime()));
+                    pstmt.setDate(2, new java.sql.Date(endDate.getTime()));
+
+                    ResultSet rs = pstmt.executeQuery();
+
+                    StringBuilder reportContent = new StringBuilder();
+                    reportContent.append("Monthly Report\n")
+                            .append("Start Date: ").append(startDate).append("\n")
+                            .append("End Date: ").append(endDate).append("\n\n");
+
+                    while (rs.next()) {
+                        String category = rs.getString("category");
+                        BigDecimal amount = rs.getBigDecimal("amount");
+                        reportContent.append("Category: ").append(category)
+                                .append(" | Amount: ").append(amount).append("\n");
+                    }
+
+                    java.nio.file.Files.write(java.nio.file.Paths.get(filePath), reportContent.toString().getBytes());
+                    JOptionPane.showMessageDialog(this, "Report exported successfully.");
+
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Error exporting file: " + ex.getMessage());
+                }
+
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(ExportScreen.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(ExportScreen.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**

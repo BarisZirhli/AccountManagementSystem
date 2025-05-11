@@ -25,11 +25,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author EXCALIBUR
  */
 public class Dashboard extends javax.swing.JFrame {
+
     public String getfullNameFromEmail(String email) throws FileNotFoundException, IOException {
         String fullName = "";
         try {
@@ -43,7 +45,8 @@ public class Dashboard extends javax.swing.JFrame {
             String DBpassword = properties.getProperty(("db.password"));
             String query = "SELECT full_name FROM users WHERE email = ?";
 
-            try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword);
+                    PreparedStatement pstmt = conn.prepareStatement(query)) {
 
                 pstmt.setString(1, email);
                 ResultSet rs = pstmt.executeQuery();
@@ -60,10 +63,10 @@ public class Dashboard extends javax.swing.JFrame {
 
     public Dashboard() throws IOException {
         initComponents();
-   loadTransactionsToTable();
-   
-        String name  = getfullNameFromEmail(Session.CurrentUser.getEmail());
-        
+        loadTransactionsToTable();
+
+        String name = getfullNameFromEmail(Session.CurrentUser.getEmail());
+
         jLabel2.setText("Welcome: " + name.toUpperCase());
     }
 
@@ -322,7 +325,7 @@ public class Dashboard extends javax.swing.JFrame {
     // save   Date date = (Date) jDateChooser1.getDate();
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         java.util.Date utilDate = jDateChooser1.getDate();
-        
+
         // Convert it to java.sql.Date for database operations
         java.sql.Date sqlDate = null;
         if (utilDate != null) {
@@ -343,7 +346,7 @@ public class Dashboard extends javax.swing.JFrame {
     // export button actions
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-        
+
         this.dispose();
         ExportScreen es = new ExportScreen();
         es.setVisible(true);
@@ -468,7 +471,7 @@ public class Dashboard extends javax.swing.JFrame {
                 if (result > 0) {
                     JOptionPane.showMessageDialog(this, "Kullanıcı başarıyla bir işlemi gerçekleştirdi!");
                     loadTransactionsToTable();
-  
+
                 } else {
                     JOptionPane.showMessageDialog(this, "Bir hata oluştu.");
                 }
@@ -479,92 +482,91 @@ public class Dashboard extends javax.swing.JFrame {
 
     }
 
-public void loadTransactionsToTable() {
-    DefaultTableModel model = new DefaultTableModel(
-        new Object[]{"ID", "Date", "Type", "Category", "Amount", "Currency"}, 0) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
-
-    try {
-        Properties properties = new Properties();
-        String currentDirectory = System.getProperty("user.dir");
-        FileInputStream input = new FileInputStream(currentDirectory + "\\config.properties");
-        properties.load(input);
-        
-        String url = properties.getProperty("db.url");
-        String username = properties.getProperty("db.username");
-        String password = properties.getProperty("db.password");
-        
-        String query = "SELECT transaction_id, date, type, category, amount, currency " +
-                       "FROM transactions WHERE user_id = ? ORDER BY date DESC";
-        
-        try (Connection conn = DriverManager.getConnection(url, username, password);
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-            
-            int userId = getUserIdFromEmail(Session.CurrentUser.getEmail());
-            System.out.println(userId);
-            pstmt.setInt(1, userId);
-            
-            ResultSet rs = pstmt.executeQuery();
-            
-            while (rs.next()) {
-                model.addRow(new Object[]{
-                    rs.getInt("transaction_id"),
-                    rs.getDate("date"),
-                    rs.getString("type"),
-                    rs.getString("category"),
-                    rs.getDouble("amount"),
-                    rs.getString("currency")
-                });
+    public void loadTransactionsToTable() {
+        DefaultTableModel model = new DefaultTableModel(
+                new Object[]{"ID", "Date", "Type", "Category", "Amount", "Currency"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
             }
+        };
+
+        try {
+            Properties properties = new Properties();
+            String currentDirectory = System.getProperty("user.dir");
+            FileInputStream input = new FileInputStream(currentDirectory + "\\config.properties");
+            properties.load(input);
+
+            String url = properties.getProperty("db.url");
+            String username = properties.getProperty("db.username");
+            String password = properties.getProperty("db.password");
+
+            String query = "SELECT transaction_id, date, type, category, amount, currency "
+                    + "FROM transactions WHERE user_id = ? ORDER BY date DESC";
+
+            try (Connection conn = DriverManager.getConnection(url, username, password); PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+                int userId = getUserIdFromEmail(Session.CurrentUser.getEmail());
+                System.out.println(userId);
+                pstmt.setInt(1, userId);
+
+                ResultSet rs = pstmt.executeQuery();
+
+                while (rs.next()) {
+                    model.addRow(new Object[]{
+                        rs.getInt("transaction_id"),
+                        rs.getDate("date"),
+                        rs.getString("type"),
+                        rs.getString("category"),
+                        rs.getDouble("amount"),
+                        rs.getString("currency")
+                    });
+                }
+            }
+
+            jTable2.setModel(model);
+
+            jTable2.getColumnModel().getColumn(0).setPreferredWidth(50);  // ID
+            jTable2.getColumnModel().getColumn(1).setPreferredWidth(100); // Date
+            jTable2.getColumnModel().getColumn(2).setPreferredWidth(100); // Type
+            jTable2.getColumnModel().getColumn(3).setPreferredWidth(120); // Category
+            jTable2.getColumnModel().getColumn(4).setPreferredWidth(80);  // Amount
+            jTable2.getColumnModel().getColumn(5).setPreferredWidth(70);  // Currency
+
+            customizeTableColumns();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error loading transactions: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
         }
-        
-        jTable2.setModel(model);
-        
-        jTable2.getColumnModel().getColumn(0).setPreferredWidth(50);  // ID
-        jTable2.getColumnModel().getColumn(1).setPreferredWidth(100); // Date
-        jTable2.getColumnModel().getColumn(2).setPreferredWidth(100); // Type
-        jTable2.getColumnModel().getColumn(3).setPreferredWidth(120); // Category
-        jTable2.getColumnModel().getColumn(4).setPreferredWidth(80);  // Amount
-        jTable2.getColumnModel().getColumn(5).setPreferredWidth(70);  // Currency
-        
-        customizeTableColumns();
-        
-    } catch (Exception e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error loading transactions: " + e.getMessage(),
-                                    "Error", JOptionPane.ERROR_MESSAGE);
     }
-}
 
-public void customizeTableColumns() {
-    jTable2.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, 
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            if (value instanceof Date) {
-                value = dateFormat.format((Date)value);
+    public void customizeTableColumns() {
+        jTable2.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                if (value instanceof Date) {
+                    value = dateFormat.format((Date) value);
+                }
+                return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             }
-            return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        }
-    });
-    
-    jTable2.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
-        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
-        
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, 
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            if (value instanceof Double) {
-                value = currencyFormat.format(value);
+        });
+
+        jTable2.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
+            NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                if (value instanceof Double) {
+                    value = currencyFormat.format(value);
+                }
+                return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             }
-            return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        }
-    });
-}
+        });
+    }
 }
