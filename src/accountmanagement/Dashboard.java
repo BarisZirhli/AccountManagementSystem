@@ -3,6 +3,7 @@ package accountmanagement;
 
 import accountmanagement.data.Session;
 import java.awt.Component;
+import java.awt.HeadlessException;
 import java.io.FileInputStream;
 import java.util.Properties;
 import java.sql.*;
@@ -26,11 +27,8 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-/**
- *
- * @author EXCALIBUR
- */
-public class Dashboard extends javax.swing.JFrame {
+
+public final class Dashboard extends javax.swing.JFrame {
 
     public String getfullNameFromEmail(String email) throws FileNotFoundException, IOException {
         String fullName = "";
@@ -56,7 +54,6 @@ public class Dashboard extends javax.swing.JFrame {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return fullName;
     }
@@ -469,13 +466,11 @@ String category = String.join(", ", categories);
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    new Dashboard().setVisible(true);
-                } catch (IOException ex) {
-                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        java.awt.EventQueue.invokeLater(() -> {
+            try {
+                new Dashboard().setVisible(true);
+            } catch (IOException ex) {
+                Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }
@@ -538,7 +533,7 @@ String category = String.join(", ", categories);
         }
         return userId;
     }
-//    jLabel4.Text = DBusername;
+
 
     public void addTransactionToDatabase(Date date, String type, String category, double amount, String currency) throws IOException {
         int userId = getUserIdFromEmail(Session.CurrentUser.getEmail());
@@ -571,8 +566,7 @@ String category = String.join(", ", categories);
                     JOptionPane.showMessageDialog(this, "Bir hata oluştu.");
                 }
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (HeadlessException | IOException | SQLException ex) {
         }
 
     }
@@ -580,6 +574,7 @@ String category = String.join(", ", categories);
     public void loadTransactionsToTable() {
         DefaultTableModel model = new DefaultTableModel(
                 new Object[]{"ID", "Date", "Type", "Category", "Amount", "Currency"}, 0) {
+            // override        
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -641,6 +636,7 @@ String category = String.join(", ", categories);
         jTable2.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
+             // override used
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int column) {
@@ -654,6 +650,7 @@ String category = String.join(", ", categories);
         jTable2.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
             NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 
+            // override used
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int column) {

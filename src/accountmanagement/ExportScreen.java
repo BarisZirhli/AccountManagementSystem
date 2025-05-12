@@ -164,7 +164,7 @@ public class ExportScreen extends javax.swing.JFrame {
                 Date startDate = jDateChooser1.getDate();
                 Date endDate = jDateChooser4.getDate();
 
-                String query = "SELECT category, amount, currency FROM transactions WHERE date BETWEEN ? AND ?";
+                String query = "SELECT type, amount, currency FROM transactions WHERE date BETWEEN ? AND ?";
 
                 try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword); PreparedStatement pstmt = conn.prepareStatement(query)) {
 
@@ -178,7 +178,7 @@ public class ExportScreen extends javax.swing.JFrame {
                             .append("Start Date: ").append(startDate).append("\n")
                             .append("End Date: ").append(endDate).append("\n\n");
 
-                    String category = "";
+                    String type = "";
                     int amount = 0;
                     String currency = "";
                     double income = 0.0;
@@ -186,7 +186,7 @@ public class ExportScreen extends javax.swing.JFrame {
 
                     while (rs.next()) {
                         amount = rs.getInt("amount");
-                        category = rs.getString("category");
+                        type = rs.getString("type");
                         currency = rs.getString("currency");
 
                         String currencyCode = normalizeCurrencyCode(currency);
@@ -199,21 +199,26 @@ public class ExportScreen extends javax.swing.JFrame {
                                 convertedAmount = exchange * amount;
                             }
 
-                            if (category.equalsIgnoreCase("income")) {
+                            if (type.equalsIgnoreCase("income")) {
                                 income += convertedAmount;
-                            } else if (category.equalsIgnoreCase("expense")) {
+                            } else if (type.equalsIgnoreCase("expense")) {
                                 expense += convertedAmount;
                             }
 
                         } catch (Exception e) {
                             System.out.println("Döviz kuru alınırken hata oluştu: " + currency + " -> " + e.getMessage());
 
-                            if (category.equalsIgnoreCase("income")) {
+                            if (type.equalsIgnoreCase("income")) {
                                 income += amount;
-                            } else if (category.equalsIgnoreCase("expense")) {
+                            } else if (type.equalsIgnoreCase("expense")) {
                                 expense += amount;
                             }
                         }
+                         reportContent.append("Type: ").append(type)
+                     .append(" | Amount: ").append(amount)
+                     .append(" ").append(currency)
+                     .append(" (≈ ").append(String.format("%.2f", income-expense)).append(" TL)")
+                     .append("\n");
                     }
 
                     reportContent
