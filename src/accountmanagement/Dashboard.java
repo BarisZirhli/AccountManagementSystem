@@ -1,4 +1,7 @@
-
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
 package accountmanagement;
 
 import accountmanagement.data.Session;
@@ -74,40 +77,6 @@ public class Dashboard extends javax.swing.JFrame {
         jLabel2.setText("Welcome: " + name.toUpperCase());
     }
 
-public Dashboard(String email) throws IOException {
-    initComponents();
-    ButtonGroup currencyGroup = new ButtonGroup();
-    currencyGroup.add(jRadioButton1);
-    currencyGroup.add(jRadioButton2);
-    currencyGroup.add(jRadioButton3);
-    loadTransactionsToTable();
-
-    String name = getfullNameFromEmail(email);
-    jLabel2.setText("Welcome: " + name.toUpperCase());
-}
-
-public Dashboard(String email, boolean loadTransactions) throws IOException {
-    initComponents();
-    ButtonGroup currencyGroup = new ButtonGroup();
-    currencyGroup.add(jRadioButton1);
-    currencyGroup.add(jRadioButton2);
-    currencyGroup.add(jRadioButton3);
-
-    if (loadTransactions) {
-        loadTransactionsToTable();
-    }
-
-    String name = getfullNameFromEmail(email);
-    jLabel2.setText("Welcome: " + name.toUpperCase());
-}
-
-
-// Dashboard dashboard1 = new Dashboard();
-
-// Dashboard dashboard2 = new Dashboard("test@example.com");
-// Dashboard dashboard3 = new Dashboard("test@example.com", false);
-
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
