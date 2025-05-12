@@ -17,8 +17,12 @@ import java.util.Properties;
 import java.sql.ResultSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import accountmanagement.data.CurrencyConverter;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import javax.swing.JOptionPane;
+import org.json.JSONObject;
 
 /**
  *
@@ -179,43 +183,43 @@ public class ExportScreen extends javax.swing.JFrame {
                     String currency = "";
                     double income = 0.0;
                     double expense = 0.0;
-                    CurrencyConverter currencyConverter = new CurrencyConverter();
 
                     while (rs.next()) {
                         amount = rs.getInt("amount");
                         category = rs.getString("category");
                         currency = rs.getString("currency");
 
-                      
-                        if (category.equals("income") && !currency.equals("TL")) {
-                            try {
-                                double exchange = currencyConverter.getExchangeRate(currency);
-                                income += exchange * amount;
-                            } catch (Exception e) {
-                                System.out.println("Döviz kuru alınırken hata oluştu: " + currency);
-                                income += amount;
+                        String currencyCode = normalizeCurrencyCode(currency);
+
+                        try {
+                            double convertedAmount = amount;
+
+                            if (!currencyCode.equals("tl")) {
+                                double exchange = getExchangeRate(currencyCode);
+                                convertedAmount = exchange * amount;
                             }
-                        }
-                        else if (category.equals("expense") && !currency.equals("TL")) {
-                            try {
-                                double exchange = currencyConverter.getExchangeRate(currency); 
-                                expense += exchange * amount;
-                            } catch (Exception e) {
-                                System.out.println("Döviz kuru alınırken hata oluştu: " + currency);
-                                expense += amount; 
+
+                            if (category.equalsIgnoreCase("income")) {
+                                income += convertedAmount;
+                            } else if (category.equalsIgnoreCase("expense")) {
+                                expense += convertedAmount;
                             }
-                        } 
-                        else if (currency.equals("TL")) {
-                            if (category.equals("income")) {
+
+                        } catch (Exception e) {
+                            System.out.println("Döviz kuru alınırken hata oluştu: " + currency + " -> " + e.getMessage());
+
+                            if (category.equalsIgnoreCase("income")) {
                                 income += amount;
-                            } else if (category.equals("expense")) {
-                                expense += amount; 
+                            } else if (category.equalsIgnoreCase("expense")) {
+                                expense += amount;
                             }
                         }
                     }
 
-                    reportContent.append("Category: ").append(category)
-                            .append(" | Amount: ").append(amount).append("Currency: ").append(currency).append("\n");
+                    reportContent
+                            .append(" |  Total Amount: ").append(String.format("%.2f", income - expense))
+                            .append(" (≈ ").append(" TL)")
+                            .append("\n");
 
                     java.nio.file.Files.write(java.nio.file.Paths.get(filePath), reportContent.toString().getBytes());
                     JOptionPane.showMessageDialog(this, "Report exported successfully.");
@@ -269,6 +273,58 @@ public class ExportScreen extends javax.swing.JFrame {
         });
     }
 
+    public double getExchangeRate(String currencyCode) throws Exception {
+        String url = "https://doviz.dev/v1/" + currencyCode.toLowerCase() + ".json";
+        HttpURLConnection con = null;
+        BufferedReader reader = null;
+
+        try {
+            URL obj = new URL(url);
+            con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("GET");
+            con.setConnectTimeout(5000);
+            con.setReadTimeout(5000);
+
+            reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+
+            JSONObject jsonObj = new JSONObject(response.toString());
+
+            String key = currencyCode.toUpperCase() + "TRY";
+            if (jsonObj.has(key)) {
+                return jsonObj.getDouble(key);
+            } else {
+                throw new Exception("Döviz çifti bulunamadı: " + key);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Exception("Kur bilgisi alınamadı: " + currencyCode);
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
+            if (con != null) {
+                con.disconnect();
+            }
+        }
+    }
+
+    public static String normalizeCurrencyCode(String dbCurrency) {
+        return switch (dbCurrency.toUpperCase()) {
+            case "EURO" ->
+                "eur";
+            case "USD" ->
+                "usd";
+            default ->
+                "tl";
+        };
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private com.toedter.calendar.JDateChooser jDateChooser1;
