@@ -30,9 +30,9 @@ import org.json.JSONObject;
  */
 public class ExportScreen extends javax.swing.JFrame {
 
-    /**
-     * Creates new form ExportScreen
-     */
+    public static double income = 0.0;
+    public static double expense = 0.0;
+
     public ExportScreen() {
         initComponents();
     }
@@ -181,8 +181,6 @@ public class ExportScreen extends javax.swing.JFrame {
                     String type = "";
                     int amount = 0;
                     String currency = "";
-                    double income = 0.0;
-                    double expense = 0.0;
 
                     while (rs.next()) {
                         amount = rs.getInt("amount");
@@ -214,11 +212,11 @@ public class ExportScreen extends javax.swing.JFrame {
                                 expense += amount;
                             }
                         }
-                         reportContent.append("Type: ").append(type)
-                     .append(" | Amount: ").append(amount)
-                     .append(" ").append(currency)
-                     .append(" (≈ ").append(String.format("%.2f", income-expense)).append(" TL)")
-                     .append("\n");
+                        reportContent.append("Type: ").append(type)
+                                .append(" | Amount: ").append(amount)
+                                .append(" ").append(currency)
+                                .append(" (≈ ").append(String.format("%.2f", income - expense)).append(" TL)")
+                                .append("\n");
                     }
 
                     reportContent
@@ -239,7 +237,9 @@ public class ExportScreen extends javax.swing.JFrame {
                 Logger.getLogger(ExportScreen.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
+            ChartScreen cs = new ChartScreen();
+            this.dispose();
+            cs.setVisible(true);
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -324,8 +324,8 @@ public class ExportScreen extends javax.swing.JFrame {
         return switch (dbCurrency.toUpperCase()) {
             case "EURO" ->
                 "eur";
-             case "EUR" ->
-                "eur";    
+            case "EUR" ->
+                "eur";
             case "USD" ->
                 "usd";
             default ->
