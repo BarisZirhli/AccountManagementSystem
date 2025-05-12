@@ -324,6 +324,8 @@ public class ExportScreen extends javax.swing.JFrame {
         return switch (dbCurrency.toUpperCase()) {
             case "EURO" ->
                 "eur";
+             case "EUR" ->
+                "eur";    
             case "USD" ->
                 "usd";
             default ->
