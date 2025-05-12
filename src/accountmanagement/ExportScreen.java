@@ -6,23 +6,18 @@ package accountmanagement;
 
 import java.io.FileInputStream;
 import java.util.Date;
-import javax.accessibility.Accessible;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.util.Properties;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import accountmanagement.data.CurrencyConverter;
 import javax.swing.JOptionPane;
 
 /**
@@ -165,7 +160,7 @@ public class ExportScreen extends javax.swing.JFrame {
                 Date startDate = jDateChooser1.getDate();
                 Date endDate = jDateChooser4.getDate();
 
-                String query = "SELECT category, amount FROM transactions WHERE date BETWEEN ? AND ?";
+                String query = "SELECT category, amount, currency FROM transactions WHERE date BETWEEN ? AND ?";
 
                 try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword); PreparedStatement pstmt = conn.prepareStatement(query)) {
 
@@ -179,12 +174,48 @@ public class ExportScreen extends javax.swing.JFrame {
                             .append("Start Date: ").append(startDate).append("\n")
                             .append("End Date: ").append(endDate).append("\n\n");
 
+                    String category = "";
+                    int amount = 0;
+                    String currency = "";
+                    double income = 0.0;
+                    double expense = 0.0;
+                    CurrencyConverter currencyConverter = new CurrencyConverter();
+
                     while (rs.next()) {
-                        String category = rs.getString("category");
-                        BigDecimal amount = rs.getBigDecimal("amount");
-                        reportContent.append("Category: ").append(category)
-                                .append(" | Amount: ").append(amount).append("\n");
+                        amount = rs.getInt("amount");
+                        category = rs.getString("category");
+                        currency = rs.getString("currency");
+
+                      
+                        if (category.equals("income") && !currency.equals("TL")) {
+                            try {
+                                double exchange = currencyConverter.getExchangeRate(currency);
+                                income += exchange * amount;
+                            } catch (Exception e) {
+                                System.out.println("Döviz kuru alınırken hata oluştu: " + currency);
+                                income += amount;
+                            }
+                        }
+                        else if (category.equals("expense") && !currency.equals("TL")) {
+                            try {
+                                double exchange = currencyConverter.getExchangeRate(currency); 
+                                expense += exchange * amount;
+                            } catch (Exception e) {
+                                System.out.println("Döviz kuru alınırken hata oluştu: " + currency);
+                                expense += amount; 
+                            }
+                        } 
+                        else if (currency.equals("TL")) {
+                            if (category.equals("income")) {
+                                income += amount;
+                            } else if (category.equals("expense")) {
+                                expense += amount; 
+                            }
+                        }
                     }
+
+                    reportContent.append("Category: ").append(category)
+                            .append(" | Amount: ").append(amount).append("Currency: ").append(currency).append("\n");
 
                     java.nio.file.Files.write(java.nio.file.Paths.get(filePath), reportContent.toString().getBytes());
                     JOptionPane.showMessageDialog(this, "Report exported successfully.");
