@@ -71,19 +71,21 @@ public class AdminScreen extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setText("ADMIN MANAGEMENT PAGE");
 
-        jTextField1.setText("jTextField1");
         jTextField1.setName("txtEmail"); // NOI18N
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel2.setText("E-MAIL");
 
-        jTextField2.setText("jTextField1");
         jTextField2.setName("txtAddress"); // NOI18N
+        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField2ActionPerformed(evt);
+            }
+        });
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel3.setText("ADRESS");
 
-        jTextField3.setText("txtFN");
         jTextField3.setName("txtFN"); // NOI18N
         jTextField3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -94,7 +96,6 @@ public class AdminScreen extends javax.swing.JFrame {
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel4.setText("PASSWORD");
 
-        jTextField4.setText("jTextField1");
         jTextField4.setAutoscrolls(false);
         jTextField4.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
         jTextField4.setName("txtPassword"); // NOI18N
@@ -306,6 +307,10 @@ public class AdminScreen extends javax.swing.JFrame {
     }
 
     }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField2ActionPerformed
 
     public void addUserToDatabase(Customer customer) throws FileNotFoundException, IOException {
 
