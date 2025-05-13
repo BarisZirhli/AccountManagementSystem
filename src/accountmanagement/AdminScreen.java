@@ -267,16 +267,27 @@ public class AdminScreen extends javax.swing.JFrame {
 
     String fullName = jTextField3.getText().trim();
     String email = jTextField1.getText().trim(); 
-    String address = jTextField2.getText().trim(); 
     String password = jTextField4.getText().trim();
+    String address = jTextField2.getText().trim(); 
+    Date today = new Date();
 
-    // Eğer herhangi bir alan boşsa, işlemi durdur
     if (fullName.isEmpty() || email.isEmpty() || address.isEmpty() || password.isEmpty()) {
         JOptionPane.showMessageDialog(this, "Lütfen tüm alanları doldurun.", "Uyarı", JOptionPane.WARNING_MESSAGE);
         return;
-    }
+    }else{
+    
+    String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+        String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$";
+        if (!email.matches(emailRegex)) {
+            JOptionPane.showMessageDialog(null, "Geçerli bir e-posta adresi giriniz!");
+            return;
+        }
 
-    Date today = new Date();
+        if (!password.matches(passwordRegex)) {
+            JOptionPane.showMessageDialog(null, "Şifre en az 6 karakter olmalı ve harf ile rakam içermelidir!");
+            return;
+        }
+        
     Customer cust = new Customer(today, address, fullName, email, password);
 
     try {
@@ -285,8 +296,8 @@ public class AdminScreen extends javax.swing.JFrame {
     } catch (IOException ex) {
         Logger.getLogger(AdminScreen.class.getName()).log(Level.SEVERE, null, ex);
         JOptionPane.showMessageDialog(this, "Kullanıcı eklenirken hata oluştu.", "Hata", JOptionPane.ERROR_MESSAGE);
-    }
-
+    }        
+        }
 }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
