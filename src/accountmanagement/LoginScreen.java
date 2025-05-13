@@ -1,5 +1,6 @@
 package accountmanagement;
 
+import accountmanagement.data.Admin;
 import accountmanagement.data.Session;
 import accountmanagement.data.User;
 import java.awt.HeadlessException;
@@ -169,7 +170,7 @@ public class LoginScreen extends javax.swing.JFrame {
             if (result4Admin.next()) {
                 System.out.println(email);
                 User u = new User(email);
-                Session.CurrentUser = u;
+                Session.CurrentAdmin = (Admin) u;
                 JOptionPane.showMessageDialog(null, "Successfull! directing Admin Screen");
                 this.dispose();
                 AdminScreen as = new AdminScreen();

@@ -33,7 +33,7 @@ import javax.swing.table.DefaultTableModel;
 
 public final class Dashboard extends javax.swing.JFrame {
 
-    public String getfullNameFromEmail(String email) throws FileNotFoundException, IOException {
+    public static String getfullNameFromEmail(String email) throws FileNotFoundException, IOException {
         String fullName = "";
         try {
             Properties properties = new Properties();
