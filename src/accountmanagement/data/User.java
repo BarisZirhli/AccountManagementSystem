@@ -1,9 +1,6 @@
 package accountmanagement.data;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
-
 
 // Inheritance base class 
 public class User {
@@ -25,7 +22,7 @@ public class User {
         this.Email = Email;
     }
 
-    public String simpleHash(String plainPassword) {
+    public static final String simpleHash(String plainPassword) {
 
         String hashedPassword = plainPassword.chars()
                 .map(c -> (c + 100) % 62) // 62, a-z (26) + A-Z (26) + 0-9 (10)
@@ -39,7 +36,7 @@ public class User {
                     return String.valueOf((char) ('0' + (i - 52))); // '0' to '9'
                 })
                 .collect(Collectors.joining());
-        
+
         return hashedPassword;
 
     }

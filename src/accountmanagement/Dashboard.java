@@ -7,8 +7,6 @@ package accountmanagement;
 import accountmanagement.data.Session;
 import java.awt.Component;
 import java.awt.HeadlessException;
-import java.io.FileInputStream;
-import java.util.Properties;
 import java.sql.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

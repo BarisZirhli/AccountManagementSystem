@@ -1,7 +1,5 @@
 package accountmanagement;
 
-import accountmanagement.data.User;
-import accountmanagement.data.Admin;
 import accountmanagement.data.Customer;
 import accountmanagement.data.Session;
 import java.awt.BorderLayout;

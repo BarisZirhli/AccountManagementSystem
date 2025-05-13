@@ -1,6 +1,5 @@
 package accountmanagement;
 
-import accountmanagement.data.Admin;
 import accountmanagement.data.Session;
 import accountmanagement.data.User;
 import java.awt.HeadlessException;
@@ -165,12 +164,12 @@ public class LoginScreen extends javax.swing.JFrame {
 
             ResultSet result4Admin = pstmtAdmin.executeQuery();
             ResultSet result = pstmt.executeQuery();
-
+            User u = new User(email);
             // first check whether being admin
             if (result4Admin.next()) {
                 System.out.println(email);
-                User u = new User(email);
-                Session.CurrentAdmin = (Admin) u;
+
+                Session.CurrentAdmin = u;
                 JOptionPane.showMessageDialog(null, "Successfull! directing Admin Screen");
                 this.dispose();
                 AdminScreen as = new AdminScreen();
@@ -178,7 +177,7 @@ public class LoginScreen extends javax.swing.JFrame {
             } else if (result.next()) {
 
                 System.out.println(email);
-                User u = new User(email);
+
                 Session.CurrentUser = u;
 
                 JOptionPane.showMessageDialog(null, "Succcesfull! Dashboard Loading.");

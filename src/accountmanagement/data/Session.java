@@ -5,13 +5,13 @@ package accountmanagement.data;
 public class Session {
     
     public static  User CurrentUser;
-    public static  Admin CurrentAdmin; 
+    public static  User CurrentAdmin; 
 
     public static User getCurrentUser() {
         return CurrentUser;
     }
 
-    public static Admin getCurrentAdmin() {
+    public static User getCurrentAdmin() {
         return CurrentAdmin;
     }
     
