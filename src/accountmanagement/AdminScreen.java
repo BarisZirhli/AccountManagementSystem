@@ -265,22 +265,29 @@ public class AdminScreen extends javax.swing.JFrame {
     // adding user
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
-        String fullName =jTextField3.getText();
-        String email = jTextField1.getText(); 
-        String address = jTextField2.getText(); 
-        String password = jTextField4.getText();
+    String fullName = jTextField3.getText().trim();
+    String email = jTextField1.getText().trim(); 
+    String address = jTextField2.getText().trim(); 
+    String password = jTextField4.getText().trim();
 
-        Date today = new Date();
+    // Eğer herhangi bir alan boşsa, işlemi durdur
+    if (fullName.isEmpty() || email.isEmpty() || address.isEmpty() || password.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Lütfen tüm alanları doldurun.", "Uyarı", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
 
-        Customer cust = new Customer(today, address, fullName, email, password);
-        try {
-            addUserToDatabase(cust);
-        } catch (IOException ex) {
-            Logger.getLogger(AdminScreen.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    Date today = new Date();
+    Customer cust = new Customer(today, address, fullName, email, password);
 
-    }//GEN-LAST:event_jButton2ActionPerformed
+    try {
+        addUserToDatabase(cust);
+        JOptionPane.showMessageDialog(this, "Kullanıcı başarıyla eklendi.", "Bilgi", JOptionPane.INFORMATION_MESSAGE);
+    } catch (IOException ex) {
+        Logger.getLogger(AdminScreen.class.getName()).log(Level.SEVERE, null, ex);
+        JOptionPane.showMessageDialog(this, "Kullanıcı eklenirken hata oluştu.", "Hata", JOptionPane.ERROR_MESSAGE);
+    }
 
+}//GEN-LAST:event_jButton2ActionPerformed
 
     private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
         // TODO add your handling code here:
