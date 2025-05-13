@@ -2,13 +2,15 @@ package accountmanagement;
 
 import accountmanagement.data.Session;
 import accountmanagement.data.User;
+import java.awt.HeadlessException;
 import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.util.Properties;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
 public class LoginScreen extends javax.swing.JFrame {
@@ -138,7 +140,7 @@ public class LoginScreen extends javax.swing.JFrame {
             Properties properties = new Properties();
             String currentDirectory = System.getProperty("user.dir");
             //System.out.println(currentDirectory + "\\config.properties");
-            FileInputStream input = new FileInputStream(currentDirectory + "\\config.properties");
+            FileInputStream input = new FileInputStream(currentDirectory + "\\src\\accountmanagement\\config.properties");
 
             properties.load(input);
             String url = properties.getProperty("db.url");
@@ -146,36 +148,43 @@ public class LoginScreen extends javax.swing.JFrame {
             String DBpassword = properties.getProperty("db.password");
 
             Connection conn = DriverManager.getConnection(url, DBusername, DBpassword);
-            String query = "SELECT role FROM users WHERE email = ? AND password_hash = ?";
-            PreparedStatement pstmt = conn.prepareStatement(query);
+            String query4user = "SELECT * FROM users WHERE email = ? AND password_hash = ?";
+            String query4admin = "SELECT * FROM admin WHERE email = ? AND password = ?";
+            PreparedStatement pstmt = conn.prepareStatement(query4user);
+            PreparedStatement pstmtAdmin = conn.prepareStatement(query4admin);
+
             User uhash = new User();
             String hashpass = uhash.simpleHash(password);
 
             pstmt.setString(1, email);
             pstmt.setString(2, password);
 
+            pstmtAdmin.setString(1, email);
+            pstmtAdmin.setString(2, password);
+
+            ResultSet result4Admin = pstmtAdmin.executeQuery();
             ResultSet result = pstmt.executeQuery();
 
-            if (result.next()) {
-                role = result.getString("role");
-                if ("ADMIN".equals(role)) {
+            // first check whether being admin
+            if (result4Admin.next()) {
+                System.out.println(email);
+                User u = new User(email);
+                Session.CurrentUser = u;
+                JOptionPane.showMessageDialog(null, "Successfull! directing Admin Screen");
+                this.dispose();
+                AdminScreen as = new AdminScreen();
+                as.setVisible(true);
+            } else if (result.next()) {
 
-                    JOptionPane.showMessageDialog(null, "Successfull! directing Admin Screen");
-                    this.dispose();
-                    AdminScreen as = new AdminScreen();
-                    as.setVisible(true);
+                System.out.println(email);
+                User u = new User(email);
+                Session.CurrentUser = u;
 
-                } else if ("USER".equals(role)) {
-                    System.out.println(email);
-                    User u = new User(email);
-                    Session.CurrentUser = u;
+                JOptionPane.showMessageDialog(null, "Succcesfull! Dashboard Loading.");
+                this.dispose();
+                Dashboard db = new Dashboard();
+                db.setVisible(true);
 
-                    JOptionPane.showMessageDialog(null, "Succcesfull! Dashboard Loading.");
-                    this.dispose();
-                    Dashboard db = new Dashboard();
-                    db.setVisible(true);
-
-                }
             } else {
                 System.out.println("Kullanıcı bulunamadı.");
             }
@@ -183,9 +192,9 @@ public class LoginScreen extends javax.swing.JFrame {
             result.close();
             pstmt.close();
             conn.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (HeadlessException | IOException | SQLException e) {
             System.err.println("Hata buradan geldi");
+            e.printStackTrace();
         }
     }
 
