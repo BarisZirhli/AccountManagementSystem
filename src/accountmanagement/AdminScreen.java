@@ -3,6 +3,8 @@ package accountmanagement;
 import accountmanagement.data.User;
 import accountmanagement.data.Admin;
 import accountmanagement.data.Customer;
+import java.awt.BorderLayout;
+import java.awt.Font;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -12,9 +14,15 @@ import java.sql.SQLException;
 import java.util.Date;
 import javax.swing.JOptionPane;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
 
 public class AdminScreen extends javax.swing.JFrame {
 
@@ -39,9 +47,10 @@ public class AdminScreen extends javax.swing.JFrame {
         jTextField4 = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         jDesktopPane1 = new javax.swing.JDesktopPane();
-        jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
         javax.swing.GroupLayout jFrame1Layout = new javax.swing.GroupLayout(jFrame1.getContentPane());
         jFrame1.getContentPane().setLayout(jFrame1Layout);
@@ -144,15 +153,6 @@ public class AdminScreen extends javax.swing.JFrame {
                 .addContainerGap(51, Short.MAX_VALUE))
         );
 
-        jButton1.setBackground(new java.awt.Color(153, 153, 153));
-        jButton1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jButton1.setText("DELETE USER");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-
         jButton2.setBackground(new java.awt.Color(153, 153, 153));
         jButton2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jButton2.setText("ADD USER");
@@ -171,9 +171,28 @@ public class AdminScreen extends javax.swing.JFrame {
             }
         });
 
-        jDesktopPane1.setLayer(jButton1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jButton3.setBackground(new java.awt.Color(153, 153, 153));
+        jButton3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jButton3.setText("DELETE USER");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
+        jButton1.setBackground(new java.awt.Color(153, 153, 153));
+        jButton1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jButton1.setText("SHOW USERS");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         jDesktopPane1.setLayer(jButton2, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jDesktopPane1.setLayer(jButton4, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jDesktopPane1.setLayer(jButton3, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jDesktopPane1.setLayer(jButton1, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout jDesktopPane1Layout = new javax.swing.GroupLayout(jDesktopPane1);
         jDesktopPane1.setLayout(jDesktopPane1Layout);
@@ -182,21 +201,25 @@ public class AdminScreen extends javax.swing.JFrame {
             .addGroup(jDesktopPane1Layout.createSequentialGroup()
                 .addGap(25, 25, 25)
                 .addGroup(jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGap(0, 31, Short.MAX_VALUE))
         );
         jDesktopPane1Layout.setVerticalGroup(
             jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jDesktopPane1Layout.createSequentialGroup()
-                .addGap(22, 22, 22)
+                .addContainerGap()
                 .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(31, 31, 31))
+                .addGap(18, 18, 18)
+                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 62, Short.MAX_VALUE)
+                .addGap(12, 12, 12))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -224,16 +247,16 @@ public class AdminScreen extends javax.swing.JFrame {
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(26, Short.MAX_VALUE)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(55, 55, 55)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(42, 42, 42)
                         .addComponent(jDesktopPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(0, 44, Short.MAX_VALUE))
+                .addGap(0, 63, Short.MAX_VALUE))
         );
 
         pack();
@@ -262,22 +285,6 @@ public class AdminScreen extends javax.swing.JFrame {
     private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField3ActionPerformed
-
-    // delete
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-       String getuserFromId = JOptionPane.showInputDialog(this, "Silmek istediğiniz user'in idsini girin!");
-       if(getuserFromId == null || getuserFromId.trim().isEmpty()){
-       JOptionPane.showMessageDialog(this, "İşlem iptal edildi veya geçersiz id girişi!");
-       return;
-       }
-       try{
-        int userId = Integer.parseInt(getuserFromId);
-           deleteUserToDatabase(userId);
-       }catch(Exception e){
-           JOptionPane.showMessageDialog(this, "Hata oluştu" + e.getMessage());
-       }
-       
-    }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
 
@@ -312,6 +319,73 @@ public class AdminScreen extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField2ActionPerformed
 
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    String getuserFromId = JOptionPane.showInputDialog(this, "Silmek istediğiniz user'in idsini girin!");
+    if(getuserFromId == null || getuserFromId.trim().isEmpty()){
+       JOptionPane.showMessageDialog(this, "İşlem iptal edildi veya geçersiz id girişi!");
+       return;
+       }
+       try{
+        int userId = Integer.parseInt(getuserFromId);
+           deleteUserToDatabase(userId);
+       }catch(Exception e){
+           JOptionPane.showMessageDialog(this, "Hata oluştu" + e.getMessage());
+       }
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    try {
+        // Get database connection properties
+        Properties properties = new Properties();
+        String currentDirectory = System.getProperty("user.dir");
+        FileInputStream input = new FileInputStream(currentDirectory + "\\src\\accountmanagement\\config.properties");
+        properties.load(input);
+        String url = properties.getProperty("db.url");
+        String DBusername = properties.getProperty("db.username");
+        String DBpassword = properties.getProperty("db.password");
+
+        // Create a new JFrame to display the users
+        JFrame usersFrame = new JFrame("User List");
+        usersFrame.setSize(600, 400);
+        usersFrame.setLayout(new BorderLayout());
+
+        // Create a list to hold user information
+        DefaultListModel<String> listModel = new DefaultListModel<>();
+
+        // Query to get all users
+        String query = "SELECT user_id, full_name, email, address FROM users";
+        try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword);
+             PreparedStatement pstmt = conn.prepareStatement(query);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            // Add each user to the list model
+            while (rs.next()) {
+                int userId = rs.getInt("user_id");
+                String fullName = rs.getString("full_name");
+                String email = rs.getString("email");
+                String address = rs.getString("address");
+
+                String userInfo = String.format("ID: %d | Name: %s | Email: %s | Address: %s", 
+                                              userId, fullName, email, address);
+                listModel.addElement(userInfo);
+            }
+        }
+
+        // Create JList with the populated model
+        JList<String> userList = new JList<>(listModel);
+        userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        userList.setFont(new Font("Monospaced", Font.PLAIN, 12));
+
+        // Add components to the frame
+        usersFrame.add(new JScrollPane(userList), BorderLayout.CENTER);
+        usersFrame.setLocationRelativeTo(this); // Center relative to admin screen
+        usersFrame.setVisible(true);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error loading users: " + e.getMessage());
+    }
+}//GEN-LAST:event_jButton1ActionPerformed
     public void addUserToDatabase(Customer customer) throws FileNotFoundException, IOException {
 
         Properties properties = new Properties();
@@ -447,6 +521,7 @@ public class AdminScreen extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JDesktopPane jDesktopPane1;
     private javax.swing.JFrame jFrame1;
