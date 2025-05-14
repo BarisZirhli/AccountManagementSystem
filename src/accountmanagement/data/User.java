@@ -9,14 +9,17 @@ public class User {
     private String Email;
     private String Password;
 
+// full parameter constructor
     public User(String FullName, String Email, String Password) {
         this.FullName = FullName;
         this.Email = Email;
         this.Password = simpleHash(Password);
     }
+    // default constructor
 
     public User() {
     }
+// one parameter constructor 
 
     public User(String Email) {
         this.Email = Email;

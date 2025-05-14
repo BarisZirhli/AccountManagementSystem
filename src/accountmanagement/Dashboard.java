@@ -28,10 +28,9 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-
 public final class Dashboard extends javax.swing.JFrame {
 
-    public static String getfullNameFromEmail(String email) throws FileNotFoundException, IOException {
+    public static String getfullNameFromEmail(String email, String table) throws FileNotFoundException, IOException {
         String fullName = "";
         try {
             Properties properties = new Properties();
@@ -42,10 +41,9 @@ public final class Dashboard extends javax.swing.JFrame {
             String url = properties.getProperty("db.url");
             String DBusername = properties.getProperty("db.username");
             String DBpassword = properties.getProperty(("db.password"));
-            String query = "SELECT full_name FROM users WHERE email = ?";
+            String query = "SELECT full_name FROM " + table + " WHERE email = ?";
 
-            try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword);
-                    PreparedStatement pstmt = conn.prepareStatement(query)) {
+            try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword); PreparedStatement pstmt = conn.prepareStatement(query)) {
 
                 pstmt.setString(1, email);
                 ResultSet rs = pstmt.executeQuery();
@@ -62,12 +60,12 @@ public final class Dashboard extends javax.swing.JFrame {
     public Dashboard() throws IOException {
         initComponents();
         ButtonGroup currencyGroup = new ButtonGroup();
-        currencyGroup.add(jRadioButton1); 
-        currencyGroup.add(jRadioButton2); 
-        currencyGroup.add(jRadioButton3); 
+        currencyGroup.add(jRadioButton1);
+        currencyGroup.add(jRadioButton2);
+        currencyGroup.add(jRadioButton3);
         loadTransactionsToTable();
 
-        String name = getfullNameFromEmail(Session.CurrentUser.getEmail());
+        String name = getfullNameFromEmail(Session.CurrentUser.getEmail(),"users");
 
         jLabel2.setText("Welcome: " + name.toUpperCase());
     }
@@ -388,29 +386,43 @@ public final class Dashboard extends javax.swing.JFrame {
 
         String type = (String) jComboBox2.getSelectedItem();
         List<String> categories = new ArrayList<>();
-        if (jCheckBox1.isSelected()) categories.add("Rent");
-        if (jCheckBox2.isSelected()) categories.add("Salary");
-        if (jCheckBox3.isSelected()) categories.add("Utilities");
-        if (jCheckBox4.isSelected()) categories.add("Transportation");
-        if (jCheckBox5.isSelected()) categories.add("Food");
+        if (jCheckBox1.isSelected()) {
+            categories.add("Rent");
+        }
+        if (jCheckBox2.isSelected()) {
+            categories.add("Salary");
+        }
+        if (jCheckBox3.isSelected()) {
+            categories.add("Utilities");
+        }
+        if (jCheckBox4.isSelected()) {
+            categories.add("Transportation");
+        }
+        if (jCheckBox5.isSelected()) {
+            categories.add("Food");
+        }
 
-if (categories.isEmpty()) {
-    JOptionPane.showMessageDialog(this, "Lütfen en az bir kategori seçin!");
-    return;
-}
+        if (categories.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Lütfen en az bir kategori seçin!");
+            return;
+        }
 
-String category = String.join(", ", categories);
-    if (category.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Lütfen bir kategori seçin!");
-        return;
-    }
+        String category = String.join(", ", categories);
+        if (category.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Lütfen bir kategori seçin!");
+            return;
+        }
 
-        double amount = ((Number)jSpinner1.getValue()).doubleValue();
+        double amount = ((Number) jSpinner1.getValue()).doubleValue();
         String currency = "";
-        if (jRadioButton1.isSelected()) currency = "TL";
-        else if (jRadioButton2.isSelected()) currency = "USD";
-        else if (jRadioButton3.isSelected()) currency = "EURO";
-    
+        if (jRadioButton1.isSelected()) {
+            currency = "TL";
+        } else if (jRadioButton2.isSelected()) {
+            currency = "USD";
+        } else if (jRadioButton3.isSelected()) {
+            currency = "EURO";
+        }
+
         try {
             addTransactionToDatabase(sqlDate, type, category, amount, currency);
         } catch (IOException ex) {
@@ -436,7 +448,7 @@ String category = String.join(", ", categories);
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
 
- java.util.Date utilDate = jDateChooser1.getDate();
+        java.util.Date utilDate = jDateChooser1.getDate();
 
         // Convert it to java.sql.Date for database operations
         java.sql.Date sqlDate = null;
@@ -446,29 +458,43 @@ String category = String.join(", ", categories);
 
         String type = (String) jComboBox2.getSelectedItem();
         List<String> categories = new ArrayList<>();
-        if (jCheckBox1.isSelected()) categories.add("Rent");
-        if (jCheckBox2.isSelected()) categories.add("Salary");
-        if (jCheckBox3.isSelected()) categories.add("Utilities");
-        if (jCheckBox4.isSelected()) categories.add("Transportation");
-        if (jCheckBox5.isSelected()) categories.add("Food");
+        if (jCheckBox1.isSelected()) {
+            categories.add("Rent");
+        }
+        if (jCheckBox2.isSelected()) {
+            categories.add("Salary");
+        }
+        if (jCheckBox3.isSelected()) {
+            categories.add("Utilities");
+        }
+        if (jCheckBox4.isSelected()) {
+            categories.add("Transportation");
+        }
+        if (jCheckBox5.isSelected()) {
+            categories.add("Food");
+        }
 
-if (categories.isEmpty()) {
-    JOptionPane.showMessageDialog(this, "Lütfen en az bir kategori seçin!");
-    return;
-}
+        if (categories.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Lütfen en az bir kategori seçin!");
+            return;
+        }
 
-String category = String.join(", ", categories);
-    if (category.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Lütfen bir kategori seçin!");
-        return;
-    }
+        String category = String.join(", ", categories);
+        if (category.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Lütfen bir kategori seçin!");
+            return;
+        }
 
-        double amount = ((Number)jSpinner1.getValue()).doubleValue();
+        double amount = ((Number) jSpinner1.getValue()).doubleValue();
         String currency = "";
-        if (jRadioButton1.isSelected()) currency = "TL";
-        else if (jRadioButton2.isSelected()) currency = "USD";
-        else if (jRadioButton3.isSelected()) currency = "EURO";
-    
+        if (jRadioButton1.isSelected()) {
+            currency = "TL";
+        } else if (jRadioButton2.isSelected()) {
+            currency = "USD";
+        } else if (jRadioButton3.isSelected()) {
+            currency = "EURO";
+        }
+
         try {
             addTransactionToDatabase(sqlDate, type, category, amount, currency);
         } catch (IOException ex) {
@@ -477,14 +503,15 @@ String category = String.join(", ", categories);
 
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
-private void jCheckBoxMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {
-    if (jCheckBoxMenuItem1.isSelected()) {
-        jTable2.setVisible(true);
-    } else {
-        jTable2.setVisible(false);
+    private void jCheckBoxMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {
+        if (jCheckBoxMenuItem1.isSelected()) {
+            jTable2.setVisible(true);
+        } else {
+            jTable2.setVisible(false);
+        }
+
     }
-    
-    }
+
     /**
      * @param args the command line arguments
      */
@@ -585,7 +612,6 @@ private void jCheckBoxMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {
         }
         return userId;
     }
-
 
     public void addTransactionToDatabase(Date date, String type, String category, double amount, String currency) throws IOException {
         int userId = getUserIdFromEmail(Session.CurrentUser.getEmail());
@@ -688,7 +714,7 @@ private void jCheckBoxMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {
         jTable2.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
-             // override used
+            // override used
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int column) {

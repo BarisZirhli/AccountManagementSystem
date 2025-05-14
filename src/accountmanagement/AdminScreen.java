@@ -31,7 +31,7 @@ public class AdminScreen extends javax.swing.JFrame {
 
     public AdminScreen() throws IOException {
         initComponents();
-        String name = Dashboard.getfullNameFromEmail(Session.CurrentAdmin.getEmail());
+        String name = Dashboard.getfullNameFromEmail(Session.CurrentAdmin.getEmail(),"admin");
         jLabel6.setText("Welcome: " + name.toUpperCase());
     }
 
