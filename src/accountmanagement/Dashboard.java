@@ -109,6 +109,11 @@ public final class Dashboard extends javax.swing.JFrame {
         jRadioButton2 = new javax.swing.JRadioButton();
         jRadioButton3 = new javax.swing.JRadioButton();
         jSpinner1 = new javax.swing.JSpinner();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -216,6 +221,30 @@ public final class Dashboard extends javax.swing.JFrame {
                 jRadioButton3ActionPerformed(evt);
             }
         });
+
+        jMenu1.setText("File");
+
+        jMenuItem1.setText("Save");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem1);
+        jMenu1.add(jSeparator1);
+
+        jCheckBoxMenuItem1.setSelected(true);
+        jCheckBoxMenuItem1.setText("Show Data");
+        jCheckBoxMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jCheckBoxMenuItem1);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -405,6 +434,57 @@ String category = String.join(", ", categories);
         // TODO add your handling code here:
     }//GEN-LAST:event_jRadioButton3ActionPerformed
 
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+
+ java.util.Date utilDate = jDateChooser1.getDate();
+
+        // Convert it to java.sql.Date for database operations
+        java.sql.Date sqlDate = null;
+        if (utilDate != null) {
+            sqlDate = new java.sql.Date(utilDate.getTime());
+        }
+
+        String type = (String) jComboBox2.getSelectedItem();
+        List<String> categories = new ArrayList<>();
+        if (jCheckBox1.isSelected()) categories.add("Rent");
+        if (jCheckBox2.isSelected()) categories.add("Salary");
+        if (jCheckBox3.isSelected()) categories.add("Utilities");
+        if (jCheckBox4.isSelected()) categories.add("Transportation");
+        if (jCheckBox5.isSelected()) categories.add("Food");
+
+if (categories.isEmpty()) {
+    JOptionPane.showMessageDialog(this, "Lütfen en az bir kategori seçin!");
+    return;
+}
+
+String category = String.join(", ", categories);
+    if (category.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Lütfen bir kategori seçin!");
+        return;
+    }
+
+        double amount = ((Number)jSpinner1.getValue()).doubleValue();
+        String currency = "";
+        if (jRadioButton1.isSelected()) currency = "TL";
+        else if (jRadioButton2.isSelected()) currency = "USD";
+        else if (jRadioButton3.isSelected()) currency = "EURO";
+    
+        try {
+            addTransactionToDatabase(sqlDate, type, category, amount, currency);
+        } catch (IOException ex) {
+            Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+private void jCheckBoxMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {
+    if (jCheckBoxMenuItem1.isSelected()) {
+        jTable2.setVisible(true);
+    } else {
+        jTable2.setVisible(false);
+    }
+    
+    }
     /**
      * @param args the command line arguments
      */
@@ -451,6 +531,7 @@ String category = String.join(", ", categories);
     private javax.swing.JCheckBox jCheckBox3;
     private javax.swing.JCheckBox jCheckBox4;
     private javax.swing.JCheckBox jCheckBox5;
+    private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     private javax.swing.JComboBox<String> jComboBox2;
     private com.toedter.calendar.JDateChooser jDateChooser1;
     private javax.swing.JLabel jLabel1;
@@ -462,12 +543,16 @@ String category = String.join(", ", categories);
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JRadioButton jRadioButton3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JSpinner jSpinner1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
