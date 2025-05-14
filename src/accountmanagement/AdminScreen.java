@@ -1,6 +1,7 @@
 package accountmanagement;
 
 import accountmanagement.data.Customer;
+import accountmanagement.data.GenericCRUD;
 import accountmanagement.data.Session;
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -14,6 +15,9 @@ import java.util.Date;
 import javax.swing.JOptionPane;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,7 +31,7 @@ public class AdminScreen extends javax.swing.JFrame {
 
     public AdminScreen() throws IOException {
         initComponents();
-        String name=Dashboard.getfullNameFromEmail(Session.CurrentAdmin.getEmail());
+        String name = Dashboard.getfullNameFromEmail(Session.CurrentAdmin.getEmail());
         jLabel6.setText("Welcome: " + name.toUpperCase());
     }
 
@@ -271,74 +275,76 @@ public class AdminScreen extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    // adding user
+    // adding user button
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
-    String fullName = jTextField3.getText().trim();
-    String email = jTextField1.getText().trim(); 
-    String password = jTextField4.getText().trim();
-    String address = jTextField2.getText().trim(); 
-    Date today = new Date();
+        String fullName = jTextField3.getText().trim();
+        String email = jTextField1.getText().trim();
+        String password = jTextField4.getText().trim();
+        String address = jTextField2.getText().trim();
+        Date today = new Date();
 
-    if (fullName.isEmpty() || email.isEmpty() || address.isEmpty() || password.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Lütfen tüm alanları doldurun.", "Uyarı", JOptionPane.WARNING_MESSAGE);
-        return;
-    }else{
-    
-    String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
-        String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$";
-        if (!email.matches(emailRegex)) {
-            JOptionPane.showMessageDialog(null, "Geçerli bir e-posta adresi giriniz!");
+        if (fullName.isEmpty() || email.isEmpty() || address.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Lütfen tüm alanları doldurun.", "Uyarı", JOptionPane.WARNING_MESSAGE);
             return;
-        }
+        } else {
 
-        if (!password.matches(passwordRegex)) {
-            JOptionPane.showMessageDialog(null, "Şifre en az 6 karakter olmalı ve harf ile rakam içermelidir!");
-            return;
-        }
-        
-    Customer cust = new Customer(today, address, fullName, email, password);
+            String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+            String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$";
+            if (!email.matches(emailRegex)) {
+                JOptionPane.showMessageDialog(null, "Geçerli bir e-posta adresi giriniz!");
+                return;
+            }
 
-    try {
-        addUserToDatabase(cust);
-        JOptionPane.showMessageDialog(this, "Kullanıcı başarıyla eklendi.", "Bilgi", JOptionPane.INFORMATION_MESSAGE);
-    } catch (IOException ex) {
-        Logger.getLogger(AdminScreen.class.getName()).log(Level.SEVERE, null, ex);
-        JOptionPane.showMessageDialog(this, "Kullanıcı eklenirken hata oluştu.", "Hata", JOptionPane.ERROR_MESSAGE);
-    }        
+            if (!password.matches(passwordRegex)) {
+                JOptionPane.showMessageDialog(null, "Şifre en az 6 karakter olmalı ve harf ile rakam içermelidir!");
+                return;
+            }
+
+            Customer cust = new Customer(today, address, fullName, email, password);
+
+            try {
+                addUserToDatabase(cust);
+                JOptionPane.showMessageDialog(this, "Kullanıcı başarıyla eklendi.", "Bilgi", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException ex) {
+                Logger.getLogger(AdminScreen.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(this, "Kullanıcı eklenirken hata oluştu.", "Hata", JOptionPane.ERROR_MESSAGE);
+            } catch (SQLException ex) {
+                Logger.getLogger(AdminScreen.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField3ActionPerformed
-
+    // update button
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
 
-         String userIdStr = JOptionPane.showInputDialog(this, "Güncellemek istediğiniz kullanıcının ID'sini girin:");
-    
-    if(userIdStr == null || userIdStr.trim().isEmpty()) {
-        JOptionPane.showMessageDialog(this, "İşlem iptal edildi veya geçersiz ID girişi!");
-        return;
-    }
-    
-    try {
-        int userId = Integer.parseInt(userIdStr);
-        
-        // Mevcut kullanıcı bilgilerini al
-        String fullName = jTextField3.getText();
-        String email = jTextField1.getText();
-        String address = jTextField2.getText();
-        String password = jTextField4.getText();
-        
-        // Güncelleme işlemini yap
-        updateUserInDatabase(userId, fullName, email, address, password);
-        
-    } catch(NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "Geçerli bir sayı giriniz!");
-    } catch(Exception e) {
-        JOptionPane.showMessageDialog(this, "Hata oluştu: " + e.getMessage());
-    }
+        String userIdStr = JOptionPane.showInputDialog(this, "Güncellemek istediğiniz kullanıcının ID'sini girin:");
+
+        if (userIdStr == null || userIdStr.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "İşlem iptal edildi veya geçersiz ID girişi!");
+            return;
+        }
+
+        try {
+            int userId = Integer.parseInt(userIdStr);
+
+            // Mevcut kullanıcı bilgilerini al
+            String fullName = jTextField3.getText();
+            String email = jTextField1.getText();
+            String address = jTextField2.getText();
+            String password = jTextField4.getText();
+
+            // Güncelleme işlemini yap
+            updateUserInDatabase(userId, fullName, email, address, password);
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Geçerli bir sayı giriniz!");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Hata oluştu: " + e.getMessage());
+        }
 
     }//GEN-LAST:event_jButton4ActionPerformed
 
@@ -346,177 +352,89 @@ public class AdminScreen extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField2ActionPerformed
 
+    // delete user button
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-    String getuserFromId = JOptionPane.showInputDialog(this, "Silmek istediğiniz user'in idsini girin!");
-    if(getuserFromId == null || getuserFromId.trim().isEmpty()){
-       JOptionPane.showMessageDialog(this, "İşlem iptal edildi veya geçersiz id girişi!");
-       return;
-       }
-       try{
-        int userId = Integer.parseInt(getuserFromId);
-           deleteUserToDatabase(userId);
-       }catch(Exception e){
-           JOptionPane.showMessageDialog(this, "Hata oluştu" + e.getMessage());
-       }
+        String getuserFromId = JOptionPane.showInputDialog(this, "Silmek istediğiniz user'in idsini girin!");
+        if (getuserFromId == null || getuserFromId.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "İşlem iptal edildi veya geçersiz id girişi!");
+            return;
+        }
+        try {
+            int userId = Integer.parseInt(getuserFromId);
+            deleteUserToDatabase(userId);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Hata oluştu" + e.getMessage());
+        }
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-    try {
-        // Get database connection properties
-        Properties properties = new Properties();
-        String currentDirectory = System.getProperty("user.dir");
-        FileInputStream input = new FileInputStream(currentDirectory + "\\src\\accountmanagement\\config.properties");
-        properties.load(input);
-        String url = properties.getProperty("db.url");
-        String DBusername = properties.getProperty("db.username");
-        String DBpassword = properties.getProperty("db.password");
+        try {
+            // Get database connection properties
+            GenericCRUD g = new GenericCRUD();
+            List<Map<String, Object>> users = g.readAll("users");
+            DefaultListModel<String> listModel = new DefaultListModel<>();
 
-        // Create a new JFrame to display the users
-        JFrame usersFrame = new JFrame("User List");
-        usersFrame.setSize(600, 400);
-        usersFrame.setLayout(new BorderLayout());
-
-        // Create a list to hold user information
-        DefaultListModel<String> listModel = new DefaultListModel<>();
-
-        // Query to get all users
-        String query = "SELECT user_id, full_name, email, address FROM users";
-        try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword);
-             PreparedStatement pstmt = conn.prepareStatement(query);
-             ResultSet rs = pstmt.executeQuery()) {
-
-            // Add each user to the list model
-            while (rs.next()) {
-                int userId = rs.getInt("user_id");
-                String fullName = rs.getString("full_name");
-                String email = rs.getString("email");
-                String address = rs.getString("address");
-
-                String userInfo = String.format("ID: %d | Name: %s | Email: %s | Address: %s", 
-                                              userId, fullName, email, address);
+            // Iterate through all users and add them to the list model
+            for (Map<String, Object> user : users) {
+                String userInfo = String.format("ID: %s | Name: %s | Email: %s | Address: %s",
+                        user.get("user_id"),
+                        user.get("full_name"),
+                        user.get("email"),
+                        user.get("address"));
                 listModel.addElement(userInfo);
             }
-        }
 
-        // Create JList with the populated model
-        JList<String> userList = new JList<>(listModel);
-        userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        userList.setFont(new Font("Monospaced", Font.PLAIN, 12));
+            // Create a new JFrame to display the users
+            JFrame usersFrame = new JFrame("User List");
+            usersFrame.setSize(600, 400);
+            usersFrame.setLayout(new BorderLayout());
 
-        // Add components to the frame
-        usersFrame.add(new JScrollPane(userList), BorderLayout.CENTER);
-        usersFrame.setLocationRelativeTo(this); // Center relative to admin screen
-        usersFrame.setVisible(true);
+            // Create JList with the populated model
+            JList<String> userList = new JList<>(listModel);
+            userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            userList.setFont(new Font("Monospaced", Font.PLAIN, 12));
 
-    } catch (Exception e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error loading users: " + e.getMessage());
-    }
-}//GEN-LAST:event_jButton1ActionPerformed
-    public void addUserToDatabase(Customer customer) throws FileNotFoundException, IOException {
-
-        Properties properties = new Properties();
-        String currentDirectory = System.getProperty("user.dir");
-        System.out.println(currentDirectory);
-        FileInputStream input = new FileInputStream(currentDirectory + "\\src\\accountmanagement\\config.properties");
-        properties.load(input);
-        String url = properties.getProperty("db.url");
-        String DBusername = properties.getProperty("db.username");
-        String DBpassword = properties.getProperty(("db.password"));
-
-        String query = "INSERT INTO users (user_id, email, password_hash, role, address, full_name, enroll_date) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)";
-
-        try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword); PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-            pstmt.setString(1, customer.getEmail());
-            pstmt.setString(2, customer.getPassword());
-            pstmt.setString(3, "USER");
-            pstmt.setString(4, customer.getAddress());
-            pstmt.setString(5, customer.getFullName());
-
-            java.sql.Date sqlDate = new java.sql.Date(customer.getOpenAccount().getTime());
-            pstmt.setDate(6, sqlDate);
-
-            int result = pstmt.executeUpdate();
-            if (result > 0) {
-                JOptionPane.showMessageDialog(this, "Kullanıcı başarıyla kaydedildi!");
-            } else {
-                JOptionPane.showMessageDialog(this, "Bir hata oluştu.");
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Veritabanı hatası: " + e.getMessage());
-        }
-    }
-
-    public void deleteUserToDatabase(int userId) {
-        
-        try {
-            Properties properties = new Properties();
-            String currentDirectory = System.getProperty("user.dir");
-            System.out.println(currentDirectory);
-            FileInputStream input = new FileInputStream(currentDirectory + "\\src\\accountmanagement\\config.properties");
-            properties.load(input);
-            String url = properties.getProperty("db.url");
-            String DBusername = properties.getProperty("db.username");
-            String DBpassword = properties.getProperty(("db.password")); 
-            Connection conn = DriverManager.getConnection(url, DBusername, DBpassword);
-            String query = "DELETE FROM users WHERE user_id = ?";
-            PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setInt(1, userId);
-
-            int rowsAffected = pstmt.executeUpdate();
-            if(rowsAffected > 0){
-            JOptionPane.showMessageDialog(this, "ID'si " + userId + " olan kullanıcı başarıyla silindi!");
-            }
-            else{
-                  JOptionPane.showMessageDialog(this, "Kullanıcı bulunamadı!");
-            }
-            pstmt.close();
-            conn.close();
-
+            // Add components to the frame
+            usersFrame.add(new JScrollPane(userList), BorderLayout.CENTER);
+            usersFrame.setLocationRelativeTo(this); // Center relative to admin screen
+            usersFrame.setVisible(true);
         } catch (Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error loading users: " + e.getMessage());
         }
+}//GEN-LAST:event_jButton1ActionPerformed
+    public void addUserToDatabase(Customer customer) throws FileNotFoundException, IOException, SQLException {
+
+        GenericCRUD g = new GenericCRUD();
+        java.sql.Date sqlDate = new java.sql.Date(customer.getOpenAccount().getTime());
+        HashMap<String, Object> hm = new HashMap<>();
+        hm.put("email", customer.getEmail());
+        hm.put("password_hash", customer.getPassword());
+        hm.put("role", "USER");
+        hm.put("address", customer.getAddress());
+        hm.put("full_name", customer.getFullName());
+        hm.put("enroll_date", sqlDate);
+        g.insert("users", hm);
 
     }
-    
-    public void updateUserInDatabase(int userId, String fullName, String email, String address, String password) {
-    try {
-        Properties properties = new Properties();
-        String currentDirectory = System.getProperty("user.dir");
-        FileInputStream input = new FileInputStream(currentDirectory + "\\src\\accountmanagement\\config.properties");
-        properties.load(input);
-        String url = properties.getProperty("db.url");
-        String DBusername = properties.getProperty("db.username");
-        String DBpassword = properties.getProperty("db.password");
-        
-        String query = "UPDATE users SET full_name = ?, email = ?, address = ?, password_hash = ? WHERE user_id = ?";
-        
-        try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword);
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-            
-            pstmt.setString(1, fullName);
-            pstmt.setString(2, email);
-            pstmt.setString(3, address);
-            pstmt.setString(4, password);
-            pstmt.setInt(5, userId);
-            
-            int rowsAffected = pstmt.executeUpdate();
-            if(rowsAffected > 0) {
-                JOptionPane.showMessageDialog(this, "ID'si " + userId + " olan kullanıcı başarıyla güncellendi!");
-            } else {
-                JOptionPane.showMessageDialog(this, "ID'si " + userId + " olan kullanıcı bulunamadı!");
-            }
-        }
-    } catch(Exception e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Veritabanı hatası: " + e.getMessage());
+
+    public void deleteUserToDatabase(int userId) throws SQLException {
+
+        GenericCRUD g = new GenericCRUD();
+        g.delete("users", "user_id", userId);
+
     }
-}
-    
-    
+
+    public void updateUserInDatabase(int userId, String fullName, String email, String address, String password) throws SQLException {
+        GenericCRUD g = new GenericCRUD();
+        HashMap<String, Object> hm = new HashMap<>();
+        hm.put("full_name", fullName);
+        hm.put("email", email);
+        hm.put("address", address);
+        hm.put("hash_password", password);
+        g.update(email, hm, "user_id", userId);
+    }
+
     public static void main(String args[]) {
 
         try {
