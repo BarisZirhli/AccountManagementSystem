@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package accountmanagement;
 
 import java.io.FileInputStream;
@@ -139,11 +135,12 @@ public class ExportScreen extends javax.swing.JFrame {
 
     // export file button
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // I created JFileChooer object to save file to folders
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Save Report File");
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files", "txt");
         chooser.setFileFilter(filter);
-
+        // I prefered .txt file for report extention
         int returnVal = chooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
@@ -163,7 +160,7 @@ public class ExportScreen extends javax.swing.JFrame {
 
                 Date startDate = jDateChooser1.getDate();
                 Date endDate = jDateChooser4.getDate();
-
+                // I calculated  between the 2 different date interval for report 
                 String query = "SELECT type, amount, currency FROM transactions WHERE date BETWEEN ? AND ?";
 
                 try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword); PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -172,7 +169,7 @@ public class ExportScreen extends javax.swing.JFrame {
                     pstmt.setDate(2, new java.sql.Date(endDate.getTime()));
 
                     ResultSet rs = pstmt.executeQuery();
-
+                    // report header
                     StringBuilder reportContent = new StringBuilder();
                     reportContent.append("Monthly Report\n")
                             .append("Start Date: ").append(startDate).append("\n")
@@ -186,7 +183,8 @@ public class ExportScreen extends javax.swing.JFrame {
                         amount = rs.getInt("amount");
                         type = rs.getString("type");
                         currency = rs.getString("currency");
-
+                        // my radio buttons and api provider represent different curreny names I write a converter.
+                        // like euro to eur  
                         String currencyCode = normalizeCurrencyCode(currency);
 
                         try {
@@ -196,15 +194,16 @@ public class ExportScreen extends javax.swing.JFrame {
                                 double exchange = getExchangeRate(currencyCode);
                                 convertedAmount = exchange * amount;
                             }
-
+                            // if transaction type income accumulated under income 
                             if (type.equalsIgnoreCase("income")) {
                                 income += convertedAmount;
+                                // if transaction type income accumulated under expense 
                             } else if (type.equalsIgnoreCase("expense")) {
                                 expense += convertedAmount;
                             }
 
                         } catch (Exception e) {
-                            System.out.println("Döviz kuru alınırken hata oluştu: " + currency + " -> " + e.getMessage());
+                            System.out.println("While fetching caused a problem: " + currency + " -> " + e.getMessage());
 
                             if (type.equalsIgnoreCase("income")) {
                                 income += amount;
@@ -212,15 +211,16 @@ public class ExportScreen extends javax.swing.JFrame {
                                 expense += amount;
                             }
                         }
+                        // I saved to file as text format these information.
                         reportContent.append("Type: ").append(type)
                                 .append(" | Amount: ").append(amount)
                                 .append(" ").append(currency)
                                 .append(" (≈ ").append(String.format("%.2f", income - expense)).append(" TL)")
                                 .append("\n");
                     }
-
+                    reportContent.append("---------------------------------------------------\n");
                     reportContent
-                            .append(" |  Total Amount: ").append(String.format("%.2f", income - expense))
+                            .append("Total Amount: ").append(String.format("%.2f", income - expense))
                             .append(" (≈ ").append(" TL)")
                             .append("\n");
 
@@ -237,9 +237,9 @@ public class ExportScreen extends javax.swing.JFrame {
                 Logger.getLogger(ExportScreen.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-            ChartScreen cs = new ChartScreen();
-            this.dispose();
-            cs.setVisible(true);
+        ChartScreen cs = new ChartScreen();
+        this.dispose();
+        cs.setVisible(true);
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -277,6 +277,9 @@ public class ExportScreen extends javax.swing.JFrame {
             }
         });
     }
+    // I fetched exchange values from  "https://doviz.dev" interactively via a WebAPI
+    // to fetch also intalled called json.jar into project. I have done  GET request from service provide
+    // per currency then I reflected them to calculations.
 
     public double getExchangeRate(String currencyCode) throws Exception {
         String url = "https://doviz.dev/v1/" + currencyCode.toLowerCase() + ".json";
@@ -304,12 +307,11 @@ public class ExportScreen extends javax.swing.JFrame {
             if (jsonObj.has(key)) {
                 return jsonObj.getDouble(key);
             } else {
-                throw new Exception("Döviz çifti bulunamadı: " + key);
+                throw new Exception("Not found exchaned pair: " + key);
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new Exception("Kur bilgisi alınamadı: " + currencyCode);
+            throw new Exception("Can not received currency value: " + currencyCode);
         } finally {
             if (reader != null) {
                 reader.close();

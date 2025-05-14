@@ -116,24 +116,27 @@ public class LoginScreen extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    // login button use login method for go thru.
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
         String email = jTextField1.getText();
         String password = new String(jPasswordField1.getPassword());
         Login(email, password);
     }//GEN-LAST:event_jButton1ActionPerformed
+    // login method applies regex rules for more advancend login experinece
+    // password longer than 6 character and should contain at least a numeric value
+    // also email regex provides real email structure
 
     public void Login(String email, String password) {
         String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
         String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$";
         if (!email.matches(emailRegex)) {
-            JOptionPane.showMessageDialog(null, "Geçerli bir e-posta adresi giriniz!");
+            JOptionPane.showMessageDialog(null, "Please enter valid e-mail !", "warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         if (!password.matches(passwordRegex)) {
-            JOptionPane.showMessageDialog(null, "Şifre en az 6 karakter olmalı ve harf ile rakam içermelidir!");
+            JOptionPane.showMessageDialog(null, "Your password contain at least one digit and length more than 6 character !", "warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
         try {
@@ -142,60 +145,61 @@ public class LoginScreen extends javax.swing.JFrame {
             String currentDirectory = System.getProperty("user.dir");
             //System.out.println(currentDirectory + "\\config.properties");
             FileInputStream input = new FileInputStream(currentDirectory + "\\src\\accountmanagement\\config.properties");
-
+            // loading connection values from  properties file manuelly.
             properties.load(input);
             String url = properties.getProperty("db.url");
             String DBusername = properties.getProperty("db.username");
             String DBpassword = properties.getProperty("db.password");
+            // database connection and login query. login response not certain so, We tries both of them user and admin. 
+            try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword)) {
+                String query4user = "SELECT * FROM users WHERE email = ? AND password_hash = ?";
+                String query4admin = "SELECT * FROM admin WHERE email = ? AND password = ?";
+                try (PreparedStatement pstmt = conn.prepareStatement(query4user)) {
+                    PreparedStatement pstmtAdmin = conn.prepareStatement(query4admin);
 
-            Connection conn = DriverManager.getConnection(url, DBusername, DBpassword);
-            String query4user = "SELECT * FROM users WHERE email = ? AND password_hash = ?";
-            String query4admin = "SELECT * FROM admin WHERE email = ? AND password = ?";
-            PreparedStatement pstmt = conn.prepareStatement(query4user);
-            PreparedStatement pstmtAdmin = conn.prepareStatement(query4admin);
+                    User uhash = new User();
+                    // calling simpehash method over user object,because password store hashed in DB
+                    String hashpass = uhash.simpleHash(password);
+                    System.err.println(hashpass);
+                    pstmt.setString(1, email);
+                    pstmt.setString(2, hashpass);
 
-            User uhash = new User();
-            String hashpass = uhash.simpleHash(password);
+                    pstmtAdmin.setString(1, email);
+                    pstmtAdmin.setString(2, hashpass);
 
-            pstmt.setString(1, email);
-            pstmt.setString(2, password);
+                    ResultSet result4Admin = pstmtAdmin.executeQuery();
+                    try (ResultSet result = pstmt.executeQuery()) {
+                        User u = new User(email);
+                        // first check whether being admin
+                        if (result4Admin.next()) {
+                            System.out.println(email);
+                            // session values initialized  
+                            Session.CurrentAdmin = u;
+                            JOptionPane.showMessageDialog(null, "Successfull! directing Admin Screen", "Information", JOptionPane.INFORMATION_MESSAGE);
+                           // hide current Jpanel and pass target panel
+                            this.dispose();
+                            AdminScreen as = new AdminScreen();
+                            as.setVisible(true);
+                        } else if (result.next()) {
 
-            pstmtAdmin.setString(1, email);
-            pstmtAdmin.setString(2, password);
+                            System.out.println(email);
+                            // session holds user credentials
+                            Session.CurrentUser = u;
 
-            ResultSet result4Admin = pstmtAdmin.executeQuery();
-            ResultSet result = pstmt.executeQuery();
-            User u = new User(email);
-            // first check whether being admin
-            if (result4Admin.next()) {
-                System.out.println(email);
+                            JOptionPane.showMessageDialog(null, "Succcesfull! Dashboard Loading.", "Information", JOptionPane.INFORMATION_MESSAGE);
+                            // hide current Jpanel and pass target panel
+                            this.dispose();
+                            Dashboard db = new Dashboard();
+                            db.setVisible(true);
 
-                Session.CurrentAdmin = u;
-                JOptionPane.showMessageDialog(null, "Successfull! directing Admin Screen");
-                this.dispose();
-                AdminScreen as = new AdminScreen();
-                as.setVisible(true);
-            } else if (result.next()) {
-
-                System.out.println(email);
-
-                Session.CurrentUser = u;
-
-                JOptionPane.showMessageDialog(null, "Succcesfull! Dashboard Loading.");
-                this.dispose();
-                Dashboard db = new Dashboard();
-                db.setVisible(true);
-
-            } else {
-                System.out.println("Kullanıcı bulunamadı.");
+                        } else {
+                            JOptionPane.showMessageDialog(null, "User not found","Error",JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                }
             }
-
-            result.close();
-            pstmt.close();
-            conn.close();
         } catch (HeadlessException | IOException | SQLException e) {
-            System.err.println("Hata buradan geldi");
-            e.printStackTrace();
+
         }
     }
 
@@ -232,10 +236,8 @@ public class LoginScreen extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new LoginScreen().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new LoginScreen().setVisible(true);
         });
     }
 

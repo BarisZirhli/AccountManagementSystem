@@ -18,7 +18,7 @@ public class GenericCRUD<T> {
     public GenericCRUD() {
         loadProperties();
     }
-    
+    // loads connection informations from properties file
     private void loadProperties() {
         Properties properties = new Properties();
         String currentDirectory = System.getProperty("user.dir");
@@ -36,11 +36,11 @@ public class GenericCRUD<T> {
             LOGGER.log(Level.SEVERE, "Failed to load database properties", e);
         }
     }
-    
+    // it makes connection to database (postgresql)
     public Connection connect() throws SQLException {
         return DriverManager.getConnection(url, DBusername, DBpassword);
     }
-    
+    // it is generic insertion method for any table
     public void insert(String table, Map<String, Object> data) throws SQLException {
         String columns = String.join(", ", data.keySet());
         String values = String.join(", ", Collections.nCopies(data.size(), "?"));
@@ -54,7 +54,7 @@ public class GenericCRUD<T> {
             stmt.executeUpdate();
         }
     }
-    
+    // it is generic selection method for any table
     public List<Map<String, Object>> readAll(String table) throws SQLException {
         String sql = "SELECT * FROM " + table;
         
@@ -77,7 +77,7 @@ public class GenericCRUD<T> {
             return resultList;
         }
     }
-    
+    // it is generic updating method for any table
     public void update(String table, Map<String, Object> data, String conditionColumn, Object conditionValue) throws SQLException {
         StringBuilder setClause = new StringBuilder();
         data.forEach((key, value) -> setClause.append(key).append("=?, "));
@@ -94,7 +94,7 @@ public class GenericCRUD<T> {
             stmt.executeUpdate();
         }
     }
-    
+    // it is generic deleting method for any table
     public void delete(String table, String conditionColumn, Object conditionValue) throws SQLException {
         String sql = "DELETE FROM " + table + " WHERE " + conditionColumn + "=?";
         

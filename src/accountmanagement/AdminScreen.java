@@ -5,6 +5,7 @@ import accountmanagement.data.GenericCRUD;
 import accountmanagement.data.Session;
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.HeadlessException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -31,7 +32,7 @@ public class AdminScreen extends javax.swing.JFrame {
 
     public AdminScreen() throws IOException {
         initComponents();
-        String name = Dashboard.getfullNameFromEmail(Session.CurrentAdmin.getEmail(),"admin");
+        String name = Dashboard.getfullNameFromEmail(Session.CurrentAdmin.getEmail(), "admin");
         jLabel6.setText("Welcome: " + name.toUpperCase());
     }
 
@@ -140,7 +141,7 @@ public class AdminScreen extends javax.swing.JFrame {
                 .addGap(78, 78, 78))
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -286,18 +287,17 @@ public class AdminScreen extends javax.swing.JFrame {
 
         if (fullName.isEmpty() || email.isEmpty() || address.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Lütfen tüm alanları doldurun.", "Uyarı", JOptionPane.WARNING_MESSAGE);
-            return;
         } else {
-
+            // more 2 regex this for user creating 
             String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
             String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$";
             if (!email.matches(emailRegex)) {
-                JOptionPane.showMessageDialog(null, "Geçerli bir e-posta adresi giriniz!");
+                JOptionPane.showMessageDialog(null, "Please enter valid email");
                 return;
             }
 
             if (!password.matches(passwordRegex)) {
-                JOptionPane.showMessageDialog(null, "Şifre en az 6 karakter olmalı ve harf ile rakam içermelidir!");
+                JOptionPane.showMessageDialog(null, "Password length 6 character and must have at least 1 numeric value");
                 return;
             }
 
@@ -305,10 +305,10 @@ public class AdminScreen extends javax.swing.JFrame {
 
             try {
                 addUserToDatabase(cust);
-                JOptionPane.showMessageDialog(this, "Kullanıcı başarıyla eklendi.", "Bilgi", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "User added succesfully", "Information", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException ex) {
                 Logger.getLogger(AdminScreen.class.getName()).log(Level.SEVERE, null, ex);
-                JOptionPane.showMessageDialog(this, "Kullanıcı eklenirken hata oluştu.", "Hata", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "User can not add", "ERROR", JOptionPane.ERROR_MESSAGE);
             } catch (SQLException ex) {
                 Logger.getLogger(AdminScreen.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -321,28 +321,26 @@ public class AdminScreen extends javax.swing.JFrame {
     // update button
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
 
-        String userIdStr = JOptionPane.showInputDialog(this, "Güncellemek istediğiniz kullanıcının ID'sini girin:");
+        String userIdStr = JOptionPane.showInputDialog(this, "Please enter want to updated user ID");
 
         if (userIdStr == null || userIdStr.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "İşlem iptal edildi veya geçersiz ID girişi!");
+            JOptionPane.showMessageDialog(this, "Operation has been canceled");
             return;
         }
 
         try {
             int userId = Integer.parseInt(userIdStr);
 
-            // Mevcut kullanıcı bilgilerini al
             String fullName = jTextField3.getText();
             String email = jTextField1.getText();
             String address = jTextField2.getText();
             String password = jTextField4.getText();
 
-            // Güncelleme işlemini yap
             updateUserInDatabase(userId, fullName, email, address, password);
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Geçerli bir sayı giriniz!");
-        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Please enter valid number!");
+        } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Hata oluştu: " + e.getMessage());
         }
 
@@ -354,16 +352,16 @@ public class AdminScreen extends javax.swing.JFrame {
 
     // delete user button
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        String getuserFromId = JOptionPane.showInputDialog(this, "Silmek istediğiniz user'in idsini girin!");
+        String getuserFromId = JOptionPane.showInputDialog(this, "Please enter want to delete user  ID", "warning", JOptionPane.WARNING_MESSAGE);
         if (getuserFromId == null || getuserFromId.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "İşlem iptal edildi veya geçersiz id girişi!");
+            JOptionPane.showMessageDialog(this, "Invalid User ID");
             return;
         }
         try {
             int userId = Integer.parseInt(getuserFromId);
             deleteUserToDatabase(userId);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Hata oluştu" + e.getMessage());
+        } catch (NumberFormatException | SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error" + e.getMessage());
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -398,13 +396,13 @@ public class AdminScreen extends javax.swing.JFrame {
             usersFrame.add(new JScrollPane(userList), BorderLayout.CENTER);
             usersFrame.setLocationRelativeTo(this); // Center relative to admin screen
             usersFrame.setVisible(true);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (HeadlessException | SQLException e) {
             JOptionPane.showMessageDialog(this, "Error loading users: " + e.getMessage());
         }
 }//GEN-LAST:event_jButton1ActionPerformed
     public void addUserToDatabase(Customer customer) throws FileNotFoundException, IOException, SQLException {
 
+        // creating an instance from GenericCRUD class 
         GenericCRUD g = new GenericCRUD();
         java.sql.Date sqlDate = new java.sql.Date(customer.getOpenAccount().getTime());
         HashMap<String, Object> hm = new HashMap<>();
@@ -444,25 +442,15 @@ public class AdminScreen extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AdminScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AdminScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AdminScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(AdminScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    new AdminScreen().setVisible(true);
-                } catch (IOException ex) {
-                    Logger.getLogger(AdminScreen.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        java.awt.EventQueue.invokeLater(() -> {
+            try {
+                new AdminScreen().setVisible(true);
+            } catch (IOException ex) {
+                Logger.getLogger(AdminScreen.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }

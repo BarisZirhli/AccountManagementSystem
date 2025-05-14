@@ -9,14 +9,15 @@ public class User {
     private String Email;
     private String Password;
 
+// multiple constructor example of method overloading
 // full parameter constructor
     public User(String FullName, String Email, String Password) {
         this.FullName = FullName;
         this.Email = Email;
         this.Password = simpleHash(Password);
     }
-    // default constructor
 
+    // default constructor
     public User() {
     }
 // one parameter constructor 
@@ -25,6 +26,8 @@ public class User {
         this.Email = Email;
     }
 
+    // I built up simple own hash method for more cryptic solution
+    // it does kind of caeser cipher way.
     public static final String simpleHash(String plainPassword) {
 
         String hashedPassword = plainPassword.chars()
