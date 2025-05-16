@@ -286,7 +286,7 @@ public class AdminScreen extends javax.swing.JFrame {
         Date today = new Date();
 
         if (fullName.isEmpty() || email.isEmpty() || address.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Lütfen tüm alanları doldurun.", "Uyarı", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please enter properly blanks", "Warning", JOptionPane.WARNING_MESSAGE);
         } else {
             // more 2 regex this for user creating 
             String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
@@ -341,7 +341,7 @@ public class AdminScreen extends javax.swing.JFrame {
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Please enter valid number!");
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Hata oluştu: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error Occured: " + e.getMessage());
         }
 
     }//GEN-LAST:event_jButton4ActionPerformed

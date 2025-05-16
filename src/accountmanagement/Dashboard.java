@@ -415,9 +415,9 @@ public final class Dashboard extends javax.swing.JFrame {
         } else if (jRadioButton3.isSelected()) {
             currency = "EURO";
         }
-
+        String description = jTextArea1.getText();
         try {
-            addTransactionToDatabase(sqlDate, type, category, amount, currency);
+            addTransactionToDatabase(sqlDate, type, category, amount, currency, description);
         } catch (IOException ex) {
             Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -487,9 +487,9 @@ public final class Dashboard extends javax.swing.JFrame {
         } else if (jRadioButton3.isSelected()) {
             currency = "EURO";
         }
-
+        String description = jTextArea1.getText();
         try {
-            addTransactionToDatabase(sqlDate, type, category, amount, currency);
+            addTransactionToDatabase(sqlDate, type, category, amount, currency, description);
         } catch (IOException ex) {
             Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -505,9 +505,7 @@ public final class Dashboard extends javax.swing.JFrame {
 
     }
 
-    /**
-     * @param args the command line arguments
-     */
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -578,8 +576,8 @@ public final class Dashboard extends javax.swing.JFrame {
     private javax.swing.JTable jTable2;
     private javax.swing.JTextArea jTextArea1;
     // End of variables declaration//GEN-END:variables
-   
-    public int getUserIdFromEmail(String email) throws FileNotFoundException, IOException {
+
+    public static int getUserIdFromEmail(String email) throws FileNotFoundException, IOException {
         int userId = -1;
         try {
             Properties properties = new Properties();
@@ -607,8 +605,9 @@ public final class Dashboard extends javax.swing.JFrame {
         return userId;
     }
 
-    public void addTransactionToDatabase(Date date, String type, String category, double amount, String currency) throws IOException {
-        int userId = getUserIdFromEmail(Session.CurrentUser.getEmail());
+    public void addTransactionToDatabase(Date date, String type, String category, double amount, String currency, String description) throws IOException {
+        String email = Session.CurrentUser.getEmail();
+        int userId = getUserIdFromEmail(email);
         System.out.println(userId);
         try {
             Properties properties = new Properties();
@@ -619,7 +618,7 @@ public final class Dashboard extends javax.swing.JFrame {
             String url = properties.getProperty("db.url");
             String DBusername = properties.getProperty("db.username");
             String DBpassword = properties.getProperty(("db.password"));
-            String query = "INSERT INTO transactions (transaction_id, date, type, category, amount, currency, user_id) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO transactions (transaction_id, date, type, category, amount, currency, user_id,description) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?,?)";
             try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword); PreparedStatement pstmt = conn.prepareStatement(query)) {
                 java.sql.Date sqlDate = new java.sql.Date(date.getTime());
                 pstmt.setDate(1, sqlDate);
@@ -628,6 +627,7 @@ public final class Dashboard extends javax.swing.JFrame {
                 pstmt.setDouble(4, amount);
                 pstmt.setString(5, currency);
                 pstmt.setInt(6, userId);
+                pstmt.setString(7, description);
 
                 int result = pstmt.executeUpdate();
                 if (result > 0) {
@@ -663,7 +663,7 @@ public final class Dashboard extends javax.swing.JFrame {
             String username = properties.getProperty("db.username");
             String password = properties.getProperty("db.password");
 
-            String query = "SELECT transaction_id, date, type, category, amount, currency "
+            String query = "SELECT transaction_id, date, type, category, amount, currency, description "
                     + "FROM transactions WHERE user_id = ? ORDER BY date DESC";
 
             try (Connection conn = DriverManager.getConnection(url, username, password); PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -697,8 +697,7 @@ public final class Dashboard extends javax.swing.JFrame {
 
             customizeTableColumns();
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException | SQLException e) {
             JOptionPane.showMessageDialog(this, "Error loading transactions: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }

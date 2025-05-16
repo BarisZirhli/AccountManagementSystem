@@ -152,6 +152,8 @@ public class LoginScreen extends javax.swing.JFrame {
             String DBpassword = properties.getProperty("db.password");
             // database connection and login query. login response not certain so, We tries both of them user and admin. 
             try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword)) {
+                // sql command has been declared.
+                
                 String query4user = "SELECT * FROM users WHERE email = ? AND password_hash = ?";
                 String query4admin = "SELECT * FROM admin WHERE email = ? AND password = ?";
                 try (PreparedStatement pstmt = conn.prepareStatement(query4user)) {

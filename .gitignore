@@ -40,6 +40,7 @@ build/
 nbbuild/
 dist/
 nbi/
+nbproject/
 
 # VS Code settings
 .vscode/

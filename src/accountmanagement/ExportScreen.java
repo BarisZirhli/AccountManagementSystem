@@ -1,5 +1,6 @@
 package accountmanagement;
 
+import accountmanagement.data.Session;
 import java.io.FileInputStream;
 import java.util.Date;
 import javax.swing.JFileChooser;
@@ -161,13 +162,15 @@ public class ExportScreen extends javax.swing.JFrame {
                 Date startDate = jDateChooser1.getDate();
                 Date endDate = jDateChooser4.getDate();
                 // I calculated  between the 2 different date interval for report 
-                String query = "SELECT type, amount, currency FROM transactions WHERE date BETWEEN ? AND ?";
-
+                String email = Session.CurrentUser.getEmail();
+                int userID = Dashboard.getUserIdFromEmail(email);
+                String query = "SELECT type, amount, currency FROM transactions WHERE date BETWEEN ? AND ? AND user_id = ? ";
+                 
                 try (Connection conn = DriverManager.getConnection(url, DBusername, DBpassword); PreparedStatement pstmt = conn.prepareStatement(query)) {
 
                     pstmt.setDate(1, new java.sql.Date(startDate.getTime()));
                     pstmt.setDate(2, new java.sql.Date(endDate.getTime()));
-
+                    pstmt.setInt(3, userID);
                     ResultSet rs = pstmt.executeQuery();
                     // report header
                     StringBuilder reportContent = new StringBuilder();
